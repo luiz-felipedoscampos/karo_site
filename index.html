@@ -3,42 +3,186 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KARO Parfums — Perfumaria japonesa</title>
-<meta name="description" content="Loja demonstrativa de perfumes japoneses: Sakura, Yuzu e Hinoki.">
+<title>KARO Parfums — Perfumaria japonesa em edição numerada</title>
+<meta name="description" content="Experimente o ritual do spray, descubra sua assinatura olfativa e leve um frasco numerado com o seu nome. Loja demonstrativa.">
+<meta name="theme-color" content="#14070b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+
+<!-- ícones da marca: traço fino, cantos redondos, com um brilho pequeno -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-sakura" viewBox="0 0 24 24">
+    <path d="M12 11 C9.4 9 9.2 5.8 11 3.4 L12 4.4 L13 3.4 C14.8 5.8 14.6 9 12 11Z"/>
+    <path transform="rotate(72 12 12)" d="M12 11 C9.4 9 9.2 5.8 11 3.4 L12 4.4 L13 3.4 C14.8 5.8 14.6 9 12 11Z"/>
+    <path transform="rotate(144 12 12)" d="M12 11 C9.4 9 9.2 5.8 11 3.4 L12 4.4 L13 3.4 C14.8 5.8 14.6 9 12 11Z"/>
+    <path transform="rotate(216 12 12)" d="M12 11 C9.4 9 9.2 5.8 11 3.4 L12 4.4 L13 3.4 C14.8 5.8 14.6 9 12 11Z"/>
+    <path transform="rotate(288 12 12)" d="M12 11 C9.4 9 9.2 5.8 11 3.4 L12 4.4 L13 3.4 C14.8 5.8 14.6 9 12 11Z"/>
+    <circle cx="12" cy="12" r="1.1" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-yuzu" viewBox="0 0 24 24">
+    <circle cx="12" cy="13.5" r="6.5"/>
+    <path d="M12 7 C12 4.6 13.8 3.2 16.2 3.4 C16.2 5.8 14.6 7.2 12 7Z"/>
+    <path d="M8.6 12.6 C8.9 11.2 9.9 10.3 11.1 10"/>
+    <circle cx="12" cy="14" r=".7" fill="currentColor"/>
+    <path d="M19.5 5 V8 M18 6.5 H21"/>
+  </symbol>
+  <symbol id="i-hinoki" viewBox="0 0 24 24">
+    <path d="M12 21 V3.5"/>
+    <path d="M12 8.5 C10.2 8.6 8.6 7.6 7.8 6"/><path d="M12 8.5 C13.8 8.6 15.4 7.6 16.2 6"/>
+    <path d="M12 12.5 C9.8 12.6 7.8 11.4 6.8 9.4"/><path d="M12 12.5 C14.2 12.6 16.2 11.4 17.2 9.4"/>
+    <path d="M12 16.5 C9.6 16.7 7.4 15.4 6.2 13"/><path d="M12 16.5 C14.4 16.7 16.6 15.4 17.8 13"/>
+  </symbol>
+  <symbol id="i-spray" viewBox="0 0 24 24">
+    <rect x="6.5" y="10.5" width="9" height="10" rx="2.5"/>
+    <path d="M9.5 10.5 V8.2 H12.5 V10.5"/><path d="M8.6 8.2 V6.4 H13.4 V8.2"/><path d="M8.6 7.3 H6.8"/>
+    <circle cx="4.6" cy="6.3" r=".6" fill="currentColor"/><circle cx="3.6" cy="8.3" r=".6" fill="currentColor"/><circle cx="4.9" cy="9.7" r=".6" fill="currentColor"/>
+    <path d="M18.5 4 V7 M17 5.5 H20"/>
+  </symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24">
+    <rect x="4" y="10" width="16" height="10" rx="2"/><path d="M3.5 7.5 H20.5 V10 H3.5Z"/><path d="M12 7.5 V20"/>
+    <path d="M12 7.5 C10 7.5 8 6.8 8 5.4 C8 4 9.8 3.8 12 7.5 C14.2 3.8 16 4 16 5.4 C16 6.8 14 7.5 12 7.5Z"/>
+  </symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24">
+    <path d="M11 3 C11.6 8 13 9.4 18 10 C13 10.6 11.6 12 11 17 C10.4 12 9 10.6 4 10 C9 9.4 10.4 8 11 3Z"/>
+    <path d="M19 16 V20 M17 18 H21"/>
+  </symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24">
+    <path d="M5.5 8.5 H18.5 L19.5 20 H4.5 Z"/><path d="M9 8.5 V7 C9 5.3 10.3 4 12 4 C13.7 4 15 5.3 15 7 V8.5"/>
+    <path d="M12 16.4 C9.8 14.8 9.8 12.6 11.2 12.6 C11.6 12.6 11.9 12.8 12 13.1 C12.1 12.8 12.4 12.6 12.8 12.6 C14.2 12.6 14.2 14.8 12 16.4Z"/>
+  </symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20 C5 15 4 10.5 6.5 8 C8.3 6.3 11 6.9 12 9 C13 6.9 15.7 6.3 17.5 8 C20 10.5 19 15 12 20Z"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24">
+    <path d="M3 7.5 H14 V16.5 H3Z"/><path d="M14 10.5 H18 L21 13.5 V16.5 H14"/><circle cx="7" cy="17.5" r="1.7"/><circle cx="17" cy="17.5" r="1.7"/>
+  </symbol>
+  <symbol id="i-seal" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="6.2" stroke-dasharray="1 2"/><path d="M9.5 12.2 L11.3 14 L14.8 10"/>
+  </symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6 L18 18 M18 6 L6 18"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5 H8 L13 5.5 V18.5 L8 14.5 H4Z"/><path d="M16.5 9 C18 10.5 18 13.5 16.5 15"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5 H8 L13 5.5 V18.5 L8 14.5 H4Z"/><path d="M17 9.5 L21 14.5 M21 9.5 L17 14.5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></symbol>
+</svg>
+
 <a class="skip" href="#colecao">Ir para o conteúdo</a>
 
-<header class="topo">
-  <nav class="nav" aria-label="Principal">
-    <a href="#colecao">Coleção</a>
-    <a href="#casa">A casa KARO</a>
-  </nav>
-  <a class="marca" href="#" aria-label="KARO — início">KARO</a>
-  <button class="btn-sacola" id="abrir-sacola" type="button" aria-haspopup="dialog">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
-    <span>Sacola</span>
-    <span class="contador" id="contador" aria-label="0 unidades na sacola">0</span>
-  </button>
-</header>
+<div class="cabecalho">
+  <div class="aviso"><svg class="ic"><use href="#i-truck"/></svg> Frete grátis acima de R$ 250 <span class="pt">·</span> <span class="pt">Embalagem de presente com cartão <svg class="ic"><use href="#i-gift"/></svg></span></div>
+  <header class="topo">
+    <nav class="nav" aria-label="Principal">
+      <a href="#ritual">Ritual</a>
+      <a href="#colecao">Coleção</a>
+      <a href="#assinatura">Minha assinatura</a>
+      <a href="#casa">A casa KARO</a>
+    </nav>
+    <a class="nav-mini" href="#assinatura" aria-label="Descobrir minha assinatura"><svg class="ic"><use href="#i-sparkle"/></svg></a>
+    <a class="marca" href="#topo" aria-label="KARO — início">KARO</a>
+    <button class="btn-sacola" id="abrir-sacola" type="button" aria-haspopup="dialog">
+      <svg class="ic"><use href="#i-bag"/></svg>
+      <span class="txt">Sacola</span>
+      <span class="contador" id="contador" aria-label="0 unidades na sacola">0</span>
+    </button>
+  </header>
+</div>
 
 <main>
-  <section class="hero">
-    <div class="hero-texto">
-      <p class="eyebrow claro">Perfumaria japonesa</p>
-      <h1>Perfumes que ficam na memória</h1>
-      <p class="hero-sub">Da flor de cerejeira à madeira de cipreste. Descubra três fragrâncias inspiradas no Japão.</p>
-      <a class="btn btn-claro" href="#colecao">Conhecer a coleção</a>
+  <!-- 1. ABERTURA -->
+  <section class="hero" id="topo">
+    <div class="hero-bg"><img id="hero-img" src="/img/campanha.jpg" alt="Frasco de perfume KARO Sakura sobre um pedestal, em luz quente"></div>
+    <div class="hero-grad"></div>
+    <div class="petais" id="petais" aria-hidden="true"></div>
+    <div class="hero-conteudo">
+      <p class="eyebrow claro" id="hero-eyebrow"><svg class="ic"><use href="#i-sakura"/></svg> Perfumaria japonesa · Edição numerada</p>
+      <h1 aria-label="Perfumes que ficam na memória.">
+        <span class="w" style="--i:0">Perfumes</span> <span class="w" style="--i:1">que</span><br>
+        <span class="w" style="--i:2">ficam</span> <span class="w" style="--i:3">na</span> <span class="w it" style="--i:4">memória.</span>
+      </h1>
+      <p class="hero-sub" id="hero-sub">Da flor de cerejeira à madeira de cipreste. Três fragrâncias inspiradas no Japão, em frascos numerados e gravados com o seu nome.</p>
+      <div class="hero-acoes">
+        <a class="btn btn-ouro" href="#ritual"><svg class="ic"><use href="#i-spray"/></svg> Experimentar o ritual</a>
+        <a class="btn btn-fantasma" href="#assinatura">Descobrir minha assinatura</a>
+      </div>
     </div>
-    <div class="hero-img"><img src="/img/campanha.jpg" alt="Frasco de perfume KARO Sakura sobre um pedestal, em luz quente"></div>
+    <a class="rolar" href="#ritual" aria-label="Rolar para o ritual"><span></span></a>
   </section>
 
+  <ul class="selos" aria-label="Diferenciais">
+    <li><svg class="ic"><use href="#i-seal"/></svg><b>Edição numerada</b><span>300 frascos por fragrância</span></li>
+    <li><svg class="ic"><use href="#i-sparkle"/></svg><b>Seu nome no frasco</b><span>Gravação de cortesia</span></li>
+    <li><svg class="ic"><use href="#i-gift"/></svg><b>Pronto para presentear</b><span>Caixa, laço e cartão</span></li>
+    <li><svg class="ic"><use href="#i-truck"/></svg><b>Frete grátis</b><span>Em compras acima de R$ 250</span></li>
+  </ul>
+
+  <!-- 2. RITUAL DO SPRAY -->
+  <section class="ritual" id="ritual" data-scent="sakura">
+    <div class="ritual-topo" data-reveal>
+      <p class="eyebrow claro">O ritual do spray</p>
+      <h2>Sinta antes de escolher.</h2>
+      <p class="lead">Segure o frasco e borrife. Cada fragrância se revela em três tempos: topo, coração e fundo.</p>
+      <div class="abas" role="tablist" aria-label="Fragrância">
+        <button class="aba" role="tab" data-scent="sakura" aria-selected="true"><svg class="ic"><use href="#i-sakura"/></svg> Sakura</button>
+        <button class="aba" role="tab" data-scent="yuzu" aria-selected="false"><svg class="ic"><use href="#i-yuzu"/></svg> Yuzu</button>
+        <button class="aba" role="tab" data-scent="hinoki" aria-selected="false"><svg class="ic"><use href="#i-hinoki"/></svg> Hinoki</button>
+        <button class="som" id="som" type="button" aria-pressed="true" aria-label="Som do spray"><svg class="ic"><use href="#i-sound"/></svg></button>
+      </div>
+    </div>
+
+    <div class="palco" id="palco">
+      <canvas id="neblina" aria-hidden="true"></canvas>
+
+      <div class="piramide" id="piramide" aria-live="polite">
+        <p class="mini">Pirâmide olfativa</p>
+        <div class="nota" data-n="0"><svg class="ic"><use href="#i-sparkle"/></svg><div><small>Topo · primeiros minutos</small><b></b></div></div>
+        <div class="nota" data-n="1"><svg class="ic"><use href="#i-sparkle"/></svg><div><small>Coração · algumas horas</small><b></b></div></div>
+        <div class="nota" data-n="2"><svg class="ic"><use href="#i-sparkle"/></svg><div><small>Fundo · o que fica na pele</small><b></b></div></div>
+      </div>
+
+      <button class="frasco-btn" id="frasco" type="button" aria-label="Borrifar o perfume. Segure para borrifar mais.">
+        <svg class="frasco" id="frasco-svg" viewBox="0 0 300 440" aria-hidden="true">
+          <defs>
+            <linearGradient id="g-ouro" x1="0" x2="1"><stop offset="0" stop-color="#f6e2b8"/><stop offset=".5" stop-color="#cfa56a"/><stop offset="1" stop-color="#8b6a38"/></linearGradient>
+            <linearGradient id="g-liq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--c1)"/><stop offset="1" style="stop-color:var(--c2)"/></linearGradient>
+            <clipPath id="cp"><rect x="72" y="204" width="156" height="198" rx="10"/></clipPath>
+          </defs>
+          <ellipse cx="150" cy="412" rx="96" ry="10" fill="#000" opacity=".4"/>
+          <path d="M78 196 H222 a14 14 0 0 1 14 14 V396 a14 14 0 0 1 -14 14 H78 a14 14 0 0 1 -14 -14 V210 a14 14 0 0 1 14 -14Z" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
+          <g clip-path="url(#cp)"><rect id="liquido" x="72" y="204" width="156" height="198" fill="url(#g-liq)"/><line x1="150" y1="200" x2="150" y2="402" stroke="rgba(255,255,255,.35)" stroke-width="2"/></g>
+          <rect x="84" y="216" width="9" height="170" rx="4.5" fill="#fff" opacity=".22"/>
+          <rect x="98" y="216" width="4" height="120" rx="2" fill="#fff" opacity=".14"/>
+          <rect x="102" y="284" width="96" height="62" rx="4" fill="rgba(0,0,0,.14)" stroke="#e8cf9f" stroke-width="1"/>
+          <text x="150" y="313" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="22" letter-spacing="5" fill="#f6e2b8">KARO</text>
+          <text id="frasco-nome" x="150" y="333" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="8" letter-spacing="3.5" fill="#f6e2b8">SAKURA</text>
+          <rect x="126" y="168" width="48" height="30" fill="url(#g-ouro)"/>
+          <rect x="114" y="150" width="72" height="20" rx="5" fill="url(#g-ouro)"/>
+          <g id="atuador">
+            <rect x="141" y="116" width="18" height="36" fill="#9c7b46"/>
+            <rect x="112" y="84" width="76" height="34" rx="11" fill="url(#g-ouro)"/>
+            <rect x="122" y="90" width="50" height="5" rx="2.5" fill="#fff" opacity=".45"/>
+            <rect x="102" y="96" width="12" height="10" rx="3" fill="#8b6a38"/>
+            <circle id="bico" cx="101" cy="101" r="3" fill="#3a2a14"/>
+          </g>
+        </svg>
+        <span class="dica" id="dica"><svg class="ic"><use href="#i-spray"/></svg> Segure para borrifar</span>
+      </button>
+
+      <div class="lado">
+        <p class="mini">Sua afinidade com <b id="afin-nome">Sakura</b></p>
+        <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="barra"><i id="barra-i"></i></div>
+        <p class="reacao" id="reacao">Borrife para sentir.</p>
+        <div class="cta-ritual" id="cta-ritual" hidden>
+          <button class="btn btn-ouro" type="button" id="levar-ritual"></button>
+          <button class="link-claro" type="button" id="outra">Experimentar outra fragrância <svg class="ic"><use href="#i-arrow"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. COLEÇÃO -->
   <section class="colecao" id="colecao">
-    <div class="titulo-sec">
+    <div class="titulo-sec" data-reveal>
       <div>
         <p class="eyebrow">KARO Parfums</p>
         <h2>A coleção</h2>
@@ -46,25 +190,91 @@
       <p class="intro">Três fragrâncias, do floral delicado ao amadeirado intenso.</p>
     </div>
     <div class="grade" id="grade" aria-live="polite"><p class="carregando">Carregando perfumes…</p></div>
+    <p class="parcelas"><svg class="ic"><use href="#i-sparkle"/></svg> Todas as fragrâncias em até 3x sem juros.</p>
   </section>
 
+  <!-- 4. JORNADA DAS NOTAS (rolagem cinematográfica) -->
+  <section class="jornada" id="jornada" data-idx="0" aria-label="A jornada das notas">
+    <div class="palco-j">
+      <div class="fundo-j"></div>
+      <div class="kanji" id="kanji" aria-hidden="true">桜</div>
+      <div class="fotos-j" aria-hidden="true">
+        <img class="foto-j on" src="/img/sakura.jpg" alt="">
+        <img class="foto-j" src="/img/yuzu.jpg" alt="">
+        <img class="foto-j" src="/img/hinoki.jpg" alt="">
+      </div>
+      <div class="textos-j">
+        <article class="cap on"><svg class="ic gr"><use href="#i-sakura"/></svg><p class="eyebrow claro">Capítulo 1 · Sakura</p><h2>Primavera, <em>em um frasco.</em></h2><p>A abertura leve da flor de cerejeira encontra o chá branco e se despede em um almíscar macio.</p></article>
+        <article class="cap"><svg class="ic gr"><use href="#i-yuzu"/></svg><p class="eyebrow claro">Capítulo 2 · Yuzu</p><h2>O sol de inverno, <em>colhido à mão.</em></h2><p>Cítrico vibrante com um toque de gengibre, assentado em uma madeira clara e luminosa.</p></article>
+        <article class="cap"><svg class="ic gr"><use href="#i-hinoki"/></svg><p class="eyebrow claro">Capítulo 3 · Hinoki</p><h2>Uma floresta <em>que acolhe.</em></h2><p>Cipreste japonês, musgo de carvalho e um traço de incenso: calma, profundidade e presença.</p></article>
+      </div>
+      <div class="prog-j" aria-hidden="true"><i id="prog-j"></i></div>
+    </div>
+  </section>
+
+  <!-- 5. ASSINATURA OLFATIVA (quiz) -->
+  <section class="assinatura" id="assinatura">
+    <div class="titulo-sec c" data-reveal>
+      <div>
+        <p class="eyebrow">Sua assinatura olfativa</p>
+        <h2>Qual KARO combina com você?</h2>
+      </div>
+      <p class="intro">Quatro perguntas rápidas. No final, um mimo de boas-vindas.</p>
+    </div>
+    <div class="quiz" id="quiz" aria-live="polite"></div>
+  </section>
+
+  <!-- 6. EXCLUSIVIDADE (hanko) -->
+  <section class="exclusivo" id="exclusivo">
+    <div class="ex-texto" data-reveal>
+      <p class="eyebrow claro">Exclusividade</p>
+      <h2>Edição numerada.<br><em>Feita para você.</em></h2>
+      <p class="lead">Cada fragrância existe em apenas 300 frascos. O seu leva um número, o seu nome gravado e o selo hanko, assinatura tradicional japonesa.</p>
+      <label for="gr-nome">Como devemos gravar seu nome?</label>
+      <input id="gr-nome" maxlength="14" autocomplete="off" placeholder="Ex.: Ana" aria-describedby="gr-ajuda">
+      <p class="ajuda" id="gr-ajuda">Até 14 letras. A gravação é cortesia.</p>
+      <div class="chips" id="gr-chips" role="group" aria-label="Fragrância do frasco"></div>
+      <button class="btn btn-ouro" id="gr-levar" type="button"><svg class="ic"><use href="#i-gift"/></svg> Levar com minha gravação</button>
+    </div>
+    <div class="ex-cartao" data-reveal>
+      <div class="caixa" id="caixa" data-scent="sakura">
+        <div class="laco" aria-hidden="true"><svg class="ic"><use href="#i-gift"/></svg></div>
+        <div class="frasco-mini"><img id="gr-foto" src="/img/sakura.jpg" alt="Frasco Sakura"></div>
+        <div class="gravado" id="gr-texto">Seu nome</div>
+        <div class="numero">Frasco nº <b id="gr-num">0147</b> / 300 <small>(prévia)</small></div>
+        <div class="hanko" id="hanko" aria-hidden="true"><span id="hanko-t">K</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. A CASA -->
   <section class="casa" id="casa">
-    <p class="eyebrow claro">A casa KARO</p>
-    <h2>Pequenos rituais, feitos para durar</h2>
-    <p>A KARO nasceu da vontade de traduzir paisagens japonesas em perfume: o instante da cerejeira em flor, o frescor de um citrino colhido no inverno, o silêncio de uma floresta de cipreste. Cada fragrância é pensada para acompanhar o dia com calma e deixar uma lembrança suave.</p>
+    <div data-reveal>
+      <p class="eyebrow claro">A casa KARO</p>
+      <h2>Pequenos rituais, <em>feitos para durar.</em></h2>
+      <p>A KARO nasceu da vontade de traduzir paisagens japonesas em perfume: o instante da cerejeira em flor, o frescor de um citrino colhido no inverno, o silêncio de uma floresta de cipreste. Cada fragrância acompanha o dia com calma e deixa uma lembrança suave.</p>
+    </div>
   </section>
 </main>
 
 <footer class="rodape">
   <span class="marca-pe">KARO</span>
-  <p>Loja demonstrativa criada para fins didáticos. Nenhum pagamento é cobrado.</p>
+  <p>Loja demonstrativa criada para fins didáticos. Nenhum pagamento é cobrado. Edições, números e mimos são ilustrativos.</p>
 </footer>
+
+<!-- mimos (gamificação do interesse do cliente) -->
+<div class="mimos" id="mimos">
+  <button class="mimos-btn" id="mimos-btn" type="button" aria-expanded="false" aria-controls="mimos-box"><svg class="ic"><use href="#i-gift"/></svg> Seus mimos <b id="mimos-n">0/2</b></button>
+  <div class="mimos-box" id="mimos-box" hidden></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
 
 <div class="veu" id="veu" hidden></div>
 <aside class="painel" id="painel" role="dialog" aria-modal="true" aria-labelledby="painel-titulo" tabindex="-1" hidden>
   <div class="painel-topo">
     <h2 id="painel-titulo"></h2>
-    <button class="fechar" id="fechar" type="button" aria-label="Fechar">✕</button>
+    <button class="fechar" id="fechar" type="button" aria-label="Fechar"><svg class="ic"><use href="#i-close"/></svg></button>
   </div>
   <div id="painel-corpo"></div>
 </aside>
