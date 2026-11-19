@@ -10,13 +10,12 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
 /* ---------------- estado (guardado no navegador) ---------------- */
 const KEY = 'karo-estado-v2';
-let S = { sacola: [], perfil: { nome: '', sprays: {}, favs: [], quiz: null, gravacao: '' }, mimos: {}, cupom: true };
+let S = { sacola: [], perfil: { nome: '', views: {}, favs: [], quiz: null, gravacao: '' }, mimos: {}, cupom: true };
 try { const r = JSON.parse(localStorage.getItem(KEY)); if (r) S = { ...S, ...r, perfil: { ...S.perfil, ...(r.perfil || {}) }, mimos: r.mimos || {} }; } catch {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
 let P = [];
 const por = id => P.find(p => p.id === id);
 const porSlug = s => P.find(p => p.slug === s);
-const totalSprays = () => Object.values(S.perfil.sprays).reduce((a, b) => a + b, 0);
 const unidades = () => S.sacola.reduce((s, i) => s + i.quantidade, 0);
 
 const FRETE = 1990, GRATIS = 25000;
@@ -32,7 +31,7 @@ const c2 = v => brl(v / 100);
 /* afinidade: o site aprende com o que o cliente faz */
 function afinidade(slug) {
   const p = porSlug(slug); if (!p) return 0;
-  let a = (S.perfil.sprays[slug] || 0) * 2;
+  let a = (S.perfil.views?.[slug] || 0);
   if (S.perfil.quiz?.slug === slug) a += 6;
   if (S.perfil.favs.includes(slug)) a += 3;
   if (S.sacola.some(i => i.id === p.id)) a += 2;
@@ -58,10 +57,9 @@ function desbloquear(chave, msg) {
 function renderMimos() {
   const n = (S.mimos.amostra ? 1 : 0) + (S.mimos.assinatura ? 1 : 0);
   $('#mimos-n').textContent = n + '/2';
-  const sp = Math.min(3, totalSprays());
   $('#mimos-box').innerHTML = `
     <p class="mini" style="margin-bottom:6px">Mimos para você</p>
-    <div class="mimo ${S.mimos.amostra ? 'ok' : ''}">${ic(S.mimos.amostra ? 'seal' : 'spray')}<div><b>Amostra de 2 ml</b><small>${S.mimos.amostra ? 'Liberada. Entra de cortesia no seu pedido.' : `Borrife 3 vezes no ritual (${sp}/3).`}</small>${S.mimos.amostra ? '' : `<div class="barra"><i style="width:${sp / 3 * 100}%"></i></div>`}</div></div>
+    <div class="mimo ${S.mimos.amostra ? 'ok' : ''}">${ic(S.mimos.amostra ? 'seal' : 'heart')}<div><b>Amostra de 2 ml</b><small>${S.mimos.amostra ? 'Liberada. Entra de cortesia no seu pedido.' : 'Favorite uma fragrância (coração).'}</small></div></div>
     <div class="mimo ${S.mimos.assinatura ? 'ok' : ''}">${ic(S.mimos.assinatura ? 'seal' : 'sparkle')}<div><b>10% na primeira compra</b><small>${S.mimos.assinatura ? 'Liberado. Aplicado na sacola (KARO10).' : 'Descubra sua assinatura olfativa.'}</small></div></div>`;
 }
 $('#mimos-btn').addEventListener('click', () => {
@@ -86,7 +84,7 @@ class Fx {
       x.globalCompositeOperation = q.kind === 'mist' ? 'lighter' : 'source-over';
       if (q.kind === 'mist') {
         const R = q.s * (1 + k * 2.6), gr = x.createRadialGradient(q.x, q.y, 0, q.x, q.y, R);
-        gr.addColorStop(0, `rgba(${r},${g},${b},${.065 * a})`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        gr.addColorStop(0, `rgba(${r},${g},${b},${.085 * a})`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
         x.fillStyle = gr; x.beginPath(); x.arc(q.x, q.y, R, 0, 6.3); x.fill();
       } else {
         x.save(); x.translate(q.x, q.y); x.rotate(q.rot); x.fillStyle = `rgba(${r},${g},${b},${Math.min(1, a * 1.4)})`; x.strokeStyle = x.fillStyle;
@@ -102,8 +100,7 @@ class Fx {
 }
 const CORES = { sakura: [242, 150, 176], yuzu: [248, 206, 70], hinoki: [140, 184, 108] };
 const GLIFO = { sakura: 'petal', yuzu: 'dot', hinoki: 'needle' };
-const neb = new Fx($('#neblina')), fx = new Fx($('#fx'));
-new ResizeObserver(() => neb.size()).observe($('#palco'));
+const neb = new Fx($('#neb-hero')), fx = new Fx($('#fx'));
 
 function confete(x, y) {
   if (reduz) return;
@@ -113,92 +110,6 @@ function confete(x, y) {
     fx.add({ kind: 'conf', rgb: paleta[i % 4], x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, max: 90 + Math.random() * 60, s: 6 + Math.random() * 7, rot: Math.random() * 6, vr: (Math.random() - .5) * .3 });
   }
 }
-
-/* ---------------- som do spray ---------------- */
-let som = true, actx;
-function psst() {
-  if (!som) return;
-  try {
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    const dur = .5, buf = actx.createBuffer(1, actx.sampleRate * dur, actx.sampleRate), d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 1.6);
-    const s = actx.createBufferSource(); s.buffer = buf;
-    const f = actx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 2400;
-    const g = actx.createGain(); g.gain.value = .11;
-    s.connect(f); f.connect(g); g.connect(actx.destination); s.start();
-  } catch {}
-}
-$('#som').addEventListener('click', e => {
-  som = !som; const b = e.currentTarget; b.setAttribute('aria-pressed', som);
-  b.innerHTML = ic(som ? 'sound' : 'mute');
-});
-
-/* ---------------- ritual do spray ---------------- */
-const ritual = $('#ritual'), frasco = $('#frasco');
-let scent = 'sakura', nivel = 1, aperta = false, ate = 0, ultimo = 0, timers = [];
-const REACOES = {
-  sakura: ['Suave, não é?', 'Dá vontade de ficar mais perto.', 'Primavera na pele.'],
-  yuzu: ['Que frescor!', 'Parece luz do sol.', 'Energia que contagia.'],
-  hinoki: ['Calma e profundidade.', 'Uma floresta depois da chuva.', 'Presença que fica.']
-};
-function trocarScent(s) {
-  scent = s; ritual.dataset.scent = s; nivel = 1; setLiquido();
-  $$('.aba').forEach(b => b.setAttribute('aria-selected', b.dataset.scent === s));
-  const p = porSlug(s);
-  $('#frasco-nome').textContent = (p?.nome || s).toUpperCase();
-  $('#afin-nome').textContent = p?.nome || s;
-  if (p) $$('#piramide .nota').forEach((n, i) => { $('b', n).textContent = Object.values(p.piramide)[i]; n.classList.remove('on'); });
-  atualizaRitual(true);
-}
-function setLiquido() { const h = 198 * nivel; const l = $('#liquido'); l.setAttribute('y', 204 + 198 - h); l.setAttribute('height', h); }
-function bico() { const n = $('#bico').getBoundingClientRect(), c = $('#neblina').getBoundingClientRect(); return { x: n.left - c.left, y: n.top + n.height / 2 - c.top }; }
-function emitir(qtd) {
-  const o = bico(), rgb = CORES[scent];
-  for (let i = 0; i < qtd; i++) {
-    const a = Math.PI + (Math.random() - .5) * .6 - .1, v = 2.2 + Math.random() * 4.6, g = Math.random() < .12;
-    neb.add({ kind: g ? GLIFO[scent] : 'mist', rgb, x: o.x, y: o.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, max: g ? 90 + Math.random() * 60 : 46 + Math.random() * 56, s: g ? 7 + Math.random() * 9 : 7 + Math.random() * 16, rot: Math.random() * 6, vr: (Math.random() - .5) * .22 });
-  }
-}
-function laco() {
-  if (aperta || performance.now() < ate) { emitir(reduz ? 2 : 5); requestAnimationFrame(laco); } else loop = false;
-}
-let loop = false;
-function iniciar() {
-  const agora = performance.now();
-  aperta = true; ate = agora + 380; frasco.classList.add('apertado'); $('#dica').classList.add('sumiu');
-  if (!loop) { loop = true; requestAnimationFrame(laco); }
-  if (agora - ultimo > 750) { ultimo = agora; borrifou(); }
-}
-function parar() { aperta = false; frasco.classList.remove('apertado'); }
-function borrifou() {
-  psst(); if (navigator.vibrate) navigator.vibrate(18);
-  S.perfil.sprays[scent] = (S.perfil.sprays[scent] || 0) + 1; save();
-  nivel = Math.max(.35, nivel - .03); setLiquido();
-  timers.forEach(clearTimeout); timers = [];
-  $$('#piramide .nota').forEach((n, i) => { n.classList.remove('on'); timers.push(setTimeout(() => n.classList.add('on'), 250 + i * 1000)); });
-  atualizaRitual();
-  if (totalSprays() >= 3) desbloquear('amostra', 'Mimo liberado: amostra de 2 ml de cortesia no seu pedido.');
-  aplicarPerfil();
-}
-function atualizaRitual(troca) {
-  const n = S.perfil.sprays[scent] || 0, p = porSlug(scent);
-  const pct = clamp(n * 34, 0, 100);
-  $('#barra-i').style.width = pct + '%'; $('#barra').setAttribute('aria-valuenow', pct);
-  $('#reacao').textContent = n ? REACOES[scent][(n - 1) % 3] : 'Borrife para sentir.';
-  const cta = $('#cta-ritual'); cta.hidden = n < 1 || !p;
-  if (p) $('#levar-ritual').innerHTML = `${ic('bag')} Levar ${esc(p.nome)} · ${brl(p.preco)}`;
-  if (troca) $('#dica').classList.toggle('sumiu', totalSprays() > 0);
-}
-frasco.addEventListener('pointerdown', e => { e.preventDefault(); frasco.setPointerCapture?.(e.pointerId); iniciar(); });
-['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => frasco.addEventListener(ev, parar));
-frasco.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); iniciar(); } });
-frasco.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') parar(); });
-frasco.addEventListener('blur', parar);
-$$('.aba').forEach(b => b.addEventListener('click', () => trocarScent(b.dataset.scent)));
-$('#levar-ritual').addEventListener('click', () => { const p = porSlug(scent); adicionar(p.id); toast(`${esc(p.nome)} na sacola. Boa escolha.`, 'bag'); });
-$('#outra').addEventListener('click', () => { const ordem = ['sakura', 'yuzu', 'hinoki']; trocarScent(ordem[(ordem.indexOf(scent) + 1) % 3]); });
-
-function irRitual(slug) { trocarScent(slug); $('#ritual').scrollIntoView({ behavior: reduz ? 'auto' : 'smooth', block: 'start' }); }
 
 /* ---------------- sacola ---------------- */
 function atualizaContador(anima) {
@@ -229,7 +140,6 @@ function renderCatalogo() {
         <p class="parc">ou 3x de ${brl(p.preco / 3)} sem juros</p>
         <div class="cartao-botoes">
           <button class="btn-vinho" type="button" data-add="${p.id}">Adicionar à sacola</button>
-          <button class="btn-prova" type="button" data-prova="${p.slug}" aria-label="Provar ${esc(p.nome)} no ritual">${ic('spray')} Provar</button>
         </div>
       </div>
     </article>`).join('');
@@ -250,7 +160,7 @@ function aplicarPerfil() {
   const m = melhor(), n = S.perfil.nome;
   const eb = $('#hero-eyebrow'), sub = $('#hero-sub');
   eb.innerHTML = `${ic('sakura')} ${n ? 'Olá, ' + esc(n) + '.' : 'Perfumaria japonesa'} · Edição numerada`;
-  if (m) { const p = porSlug(m); sub.innerHTML = `Pelo que você sentiu, <b>${esc(p.nome)}</b> parece ser o seu. ${esc(p.tagline)}`; }
+  if (m) { const p = porSlug(m); sub.innerHTML = `Pelo que você escolheu, <b>${esc(p.nome)}</b> parece ser o seu. ${esc(p.tagline)}`; }
   $$('.cartao').forEach(c => {
     const eh = c.dataset.slug === m; c.classList.toggle('match', eh);
     $('.rot', c).textContent = eh ? 'Seu match' : porSlug(c.dataset.slug).familia.split(' ')[0];
@@ -285,7 +195,6 @@ function rDetalhe() {
     <div class="pira">${nt.map(([k, v]) => `<div>${ic('sparkle')}<span><small>${rot[k]}</small><b>${esc(v)}</b></span></div>`).join('')}</div>
     <strong class="preco">${brl(p.preco)} <small style="font-weight:400;color:var(--suave)">ou 3x de ${brl(p.preco / 3)}</small></strong>
     <button class="btn-vinho" type="button" data-add="${p.id}">Adicionar à sacola</button>
-    <button class="btn-contorno" type="button" data-prova="${p.slug}">${ic('spray')} Provar no ritual do spray</button>
   </div>`;
 }
 function freteHtml(t) {
@@ -306,7 +215,7 @@ function rSacola() {
         <button class="remover" type="button" data-remover="${p.id}">Remover</button></div>
       <span class="subtotal">${brl(p.preco * i.quantidade)}</span></div>`;
   }).join('') +
-  (faltam.length ? `<div class="upsell"><h4>Complete seu ritual</h4>${faltam.map(p => `<div class="up-item"><img src="${p.imagem}" alt=""><div><b>${esc(p.nome)}${p.slug === m ? '<span class="tag-match">Combina com você</span>' : ''}</b><small>${esc(p.familia)} · ${brl(p.preco)}</small></div><button type="button" data-add="${p.id}">Adicionar</button></div>`).join('')}</div>` : '') +
+  (faltam.length ? `<div class="upsell"><h4>Complete sua coleção</h4>${faltam.map(p => `<div class="up-item"><img src="${p.imagem}" alt=""><div><b>${esc(p.nome)}${p.slug === m ? '<span class="tag-match">Combina com você</span>' : ''}</b><small>${esc(p.familia)} · ${brl(p.preco)}</small></div><button type="button" data-add="${p.id}">Adicionar</button></div>`).join('')}</div>` : '') +
   (S.mimos.assinatura ? `<label class="cupom"><input type="checkbox" id="usar-cupom" ${S.cupom ? 'checked' : ''}> ${ic('gift')} <span>Usar meu mimo: <b>10% de desconto</b> (KARO10)</span></label>` : '') +
   `<div style="margin-top:8px"><div class="tot"><span>Subtotal</span><span>${c2(t.sub)}</span></div>
    ${t.desc ? `<div class="tot verde"><span>Desconto KARO10</span><span>− ${c2(t.desc)}</span></div>` : ''}
@@ -412,7 +321,7 @@ function resultado() {
     <p class="sub" style="margin-bottom:4px">${MSG[slug]} ${esc(p.descricao)}</p>
     <div class="afin"><span>Afinidade ${pct}%</span><div class="barra"><i style="width:${pct}%"></i></div></div>
     <div class="presente-q">${ic('gift')} Mimo liberado: <b>10% na sua primeira compra</b>, aplicado na sacola.</div>
-    <div class="btns"><button class="btn-vinho" type="button" data-add="${p.id}">Levar ${esc(p.nome)} · ${brl(p.preco)}</button><button class="btn-contorno" type="button" data-prova="${p.slug}">${ic('spray')} Provar no ritual</button><button class="pular" type="button" id="q-refazer">Refazer o teste</button></div></div></div>`;
+    <div class="btns"><button class="btn-vinho" type="button" data-add="${p.id}">Levar ${esc(p.nome)} · ${brl(p.preco)}</button><button class="pular" type="button" id="q-refazer">Refazer o teste</button></div></div></div>`;
 }
 $('#quiz').addEventListener('submit', e => {
   if (e.target.id !== 'q-nome') return; e.preventDefault();
@@ -464,10 +373,9 @@ document.addEventListener('click', e => {
   else if (d.fav) {
     const s = d.fav, i = S.perfil.favs.indexOf(s); if (i >= 0) S.perfil.favs.splice(i, 1); else S.perfil.favs.push(s);
     save(); t.setAttribute('aria-pressed', i < 0); t.classList.remove('bate'); void t.offsetWidth; t.classList.add('bate'); aplicarPerfil();
-    if (i < 0) toast(`${esc(porSlug(s).nome)} salvo nos seus favoritos.`, 'heart');
+    if (i < 0) { toast(`${esc(porSlug(s).nome)} salvo nos seus favoritos.`, 'heart'); desbloquear('amostra', 'Mimo liberado: amostra de 2 ml de cortesia no seu pedido.'); }
   }
-  else if (d.detalhe) abrir('detalhe', +d.detalhe);
-  else if (d.prova) { if (view) fechar(); irRitual(d.prova); }
+  else if (d.detalhe) { const pp = por(+d.detalhe); if (pp) { S.perfil.views = S.perfil.views || {}; S.perfil.views[pp.slug] = (S.perfil.views[pp.slug] || 0) + 1; save(); } abrir('detalhe', +d.detalhe); }
   else if (d.mais) adicionar(+d.mais);
   else if (d.menos) { const it = S.sacola.find(i => i.id === +d.menos); if (it && --it.quantidade <= 0) S.sacola = S.sacola.filter(i => i !== it); save(); atualizaContador(); aplicarPerfil(); render(); }
   else if (d.remover) { S.sacola = S.sacola.filter(i => i.id !== +d.remover); save(); atualizaContador(); aplicarPerfil(); render(); }
@@ -502,7 +410,7 @@ let ticking = false;
 function aoRolar() {
   ticking = false;
   const y = scrollY;
-  if (!reduz) $('.hero-bg').style.transform = `translate3d(0,${clamp(y, 0, 900) * .22}px,0) scale(${1 + clamp(y, 0, 900) / 6000})`;
+  heroRolar();
   const r = jornada.getBoundingClientRect(), total = r.height - innerHeight, p = clamp(-r.top / total, 0, 1);
   const idx = Math.min(2, Math.floor(p * 3 * .999));
   if (jornada.dataset.idx != idx) {
@@ -525,13 +433,53 @@ if (!reduz) {
   }
 }
 
+
+/* ---------------- abertura: a tampa sai e o perfume é borrifado ao rolar ---------------- */
+const cab = $('.cabecalho'), wrap = $('#hero-wrap'), heroEl = $('.hero'), cena = $('#cena'), tampa = $('#tampa'), cabeca = $('#cabeca');
+let escala = 1, borrifado = false, soltaT;
+function layoutCena() {
+  document.documentElement.style.setProperty('--cab', cab.offsetHeight + 'px');
+  const W = heroEl.clientWidth, H = heroEl.clientHeight, s = Math.max(W / 1536, H / 1024), mob = W < 1000;
+  const w = 1536 * s, h = 1024 * s;
+  Object.assign(cena.style, { width: w + 'px', height: h + 'px', left: (W - w) * (mob ? .72 : .70) + 'px', top: (H - h) * (mob ? 0 : .12) + 'px' });
+  escala = s; neb.size();
+}
+function borrifar() {
+  cabeca.classList.add('apertado'); clearTimeout(soltaT); soltaT = setTimeout(() => cabeca.classList.remove('apertado'), 520);
+  if (reduz) return;
+  const c = cena.getBoundingClientRect(), hr = heroEl.getBoundingClientRect();
+  const ox = c.left - hr.left + 1036 * escala, oy = c.top - hr.top + 239 * escala, k = escala / .9;
+  let n = 0;
+  const tick = () => {
+    for (let i = 0; i < 9; i++) {
+      const a = Math.PI + (Math.random() - .5) * .42 - .22, v = (4 + Math.random() * 8) * k, gota = Math.random() < .16;
+      neb.add({ kind: gota ? 'dot' : 'mist', rgb: gota ? [255, 226, 205] : [255, 238, 228], x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, max: gota ? 40 + Math.random() * 30 : 38 + Math.random() * 46, s: (gota ? 3 + Math.random() * 3 : 6 + Math.random() * 14) * k, rot: 0, vr: 0 });
+    }
+    if (++n < 22) requestAnimationFrame(tick);
+  };
+  tick();
+}
+const ease = t => t * t * (3 - 2 * t);
+function heroRolar() {
+  const D = wrap.offsetHeight - heroEl.offsetHeight, topo = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cab')) || 104;
+  const s = clamp((topo - wrap.getBoundingClientRect().top) / D, 0, 1);
+  const t = ease(clamp(s / .6, 0, 1)), mob = innerWidth < 1000;
+  if (!reduz) {
+    const vx = mob ? -215 : 300, vy = mob ? -30 : 0, rot = mob ? -24 : 24;
+    tampa.setAttribute('transform', `translate(${vx * t} ${vy * t - 55 * Math.sin(Math.PI * t)}) rotate(${rot * t} 1092 190)`);
+    $('#rolar').style.opacity = s > .04 ? 0 : 1;
+    if (s >= .66 && !borrifado) { borrifado = true; borrifar(); }
+    else if (s < .5) borrifado = false;
+  }
+}
+addEventListener('resize', layoutCena);
+
 /* ---------------- início ---------------- */
-atualizaContador(); renderMimos(); renderQuiz(); aoRolar();
+layoutCena(); atualizaContador(); renderMimos(); renderQuiz(); aoRolar();
 if (S.perfil.quiz) { qp = -1; renderQuiz(); }
 if (S.perfil.gravacao) $('#gr-nome').value = S.perfil.gravacao;
 fetch('/api/perfumes').then(r => r.json()).then(d => {
   P = d; S.sacola = S.sacola.filter(i => por(i.id)); save();
-  renderCatalogo(); trocarScent('sakura'); renderEx(); atualizaContador(); aplicarPerfil(); renderMimos();
-  $('#som').innerHTML = ic('sound');
+  renderCatalogo(); renderEx(); atualizaContador(); aplicarPerfil(); renderMimos();
 }).catch(() => { $('#grade').innerHTML = '<p class="carregando">Não foi possível carregar o catálogo. Recarregue a página.</p>'; });
 })();
