@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KARO Parfums — Perfumaria japonesa</title>
+<meta name="description" content="Loja demonstrativa de perfumes japoneses: Sakura, Yuzu e Hinoki.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<a class="skip" href="#colecao">Ir para o conteúdo</a>
+
+<header class="topo">
+  <nav class="nav" aria-label="Principal">
+    <a href="#colecao">Coleção</a>
+    <a href="#casa">A casa KARO</a>
+  </nav>
+  <a class="marca" href="#" aria-label="KARO — início">KARO</a>
+  <button class="btn-sacola" id="abrir-sacola" type="button" aria-haspopup="dialog">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+    <span>Sacola</span>
+    <span class="contador" id="contador" aria-label="0 unidades na sacola">0</span>
+  </button>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-texto">
+      <p class="eyebrow claro">Perfumaria japonesa</p>
+      <h1>Perfumes que ficam na memória</h1>
+      <p class="hero-sub">Da flor de cerejeira à madeira de cipreste. Descubra três fragrâncias inspiradas no Japão.</p>
+      <a class="btn btn-claro" href="#colecao">Conhecer a coleção</a>
+    </div>
+    <div class="hero-img"><img src="/img/campanha.jpg" alt="Frasco de perfume KARO Sakura sobre um pedestal, em luz quente"></div>
+  </section>
+
+  <section class="colecao" id="colecao">
+    <div class="titulo-sec">
+      <div>
+        <p class="eyebrow">KARO Parfums</p>
+        <h2>A coleção</h2>
+      </div>
+      <p class="intro">Três fragrâncias, do floral delicado ao amadeirado intenso.</p>
+    </div>
+    <div class="grade" id="grade" aria-live="polite"><p class="carregando">Carregando perfumes…</p></div>
+  </section>
+
+  <section class="casa" id="casa">
+    <p class="eyebrow claro">A casa KARO</p>
+    <h2>Pequenos rituais, feitos para durar</h2>
+    <p>A KARO nasceu da vontade de traduzir paisagens japonesas em perfume: o instante da cerejeira em flor, o frescor de um citrino colhido no inverno, o silêncio de uma floresta de cipreste. Cada fragrância é pensada para acompanhar o dia com calma e deixar uma lembrança suave.</p>
+  </section>
+</main>
+
+<footer class="rodape">
+  <span class="marca-pe">KARO</span>
+  <p>Loja demonstrativa criada para fins didáticos. Nenhum pagamento é cobrado.</p>
+</footer>
+
+<div class="veu" id="veu" hidden></div>
+<aside class="painel" id="painel" role="dialog" aria-modal="true" aria-labelledby="painel-titulo" tabindex="-1" hidden>
+  <div class="painel-topo">
+    <h2 id="painel-titulo"></h2>
+    <button class="fechar" id="fechar" type="button" aria-label="Fechar">✕</button>
+  </div>
+  <div id="painel-corpo"></div>
+</aside>
+
+<script src="/app.js"></script>
+</body>
+</html>
