@@ -60,7 +60,7 @@ function renderMimos() {
   $('#mimos-box').innerHTML = `
     <p class="mini" style="margin-bottom:6px">Mimos para você</p>
     <div class="mimo ${S.mimos.amostra ? 'ok' : ''}">${ic(S.mimos.amostra ? 'seal' : 'heart')}<div><b>Amostra de 2 ml</b><small>${S.mimos.amostra ? 'Liberada. Entra de cortesia no seu pedido.' : 'Favorite uma fragrância (coração).'}</small></div></div>
-    <div class="mimo ${S.mimos.assinatura ? 'ok' : ''}">${ic(S.mimos.assinatura ? 'seal' : 'sparkle')}<div><b>10% na primeira compra</b><small>${S.mimos.assinatura ? 'Liberado. Aplicado na sacola (KARO10).' : 'Descubra sua assinatura olfativa.'}</small></div></div>`;
+    <div class="mimo ${S.mimos.assinatura ? 'ok' : ''}">${ic(S.mimos.assinatura ? 'seal' : 'sparkle')}<div><b>10% na primeira compra</b><small>${S.mimos.assinatura ? 'Liberado. Aplicado na sacola (KARO10).' : 'Adicione um perfume à sacola.'}</small></div></div>`;
 }
 $('#mimos-btn').addEventListener('click', () => {
   const b = $('#mimos-box'), abrir = b.hidden; b.hidden = !abrir; $('#mimos-btn').setAttribute('aria-expanded', abrir);
@@ -124,6 +124,7 @@ function adicionar(id) {
   const it = S.sacola.find(i => i.id === id);
   if (it) it.quantidade = Math.min(99, it.quantidade + 1); else S.sacola.push({ id, quantidade: 1 });
   save(); atualizaContador(true); aplicarPerfil(); if (view === 'sacola') render();
+  desbloquear('assinatura', 'Mimo liberado: 10% na primeira compra.');
 }
 function atualizaBag() { if (view === 'sacola' || view === 'checkout') render(); }
 
@@ -294,57 +295,6 @@ async function enviar(e) {
   } catch { rCheckout('Falha de conexão. Seus itens foram mantidos; tente novamente.', v); }
 }
 
-/* ---------------- quiz: assinatura olfativa ---------------- */
-const QS = [
-  { t: 'Como você quer ser lembrada(o)?', o: [['sakura', 'Pela delicadeza', 'Um toque suave que fica na memória.'], ['yuzu', 'Pela energia', 'Alguém que ilumina o ambiente.'], ['hinoki', 'Pela presença', 'Calma e firmeza, sem pressa.']] },
-  { t: 'Qual é o seu cenário ideal?', o: [['sakura', 'Jardim ao entardecer', 'Pétalas no ar e chá morno.'], ['yuzu', 'Feira de rua ao sol', 'Cores, frutas e conversa.'], ['hinoki', 'Floresta depois da chuva', 'Silêncio e terra molhada.']] },
-  { t: 'Que estação é a sua cara?', o: [['sakura', 'Primavera', 'Tudo recomeçando.'], ['yuzu', 'Verão e inverno ensolarado', 'Dias claros e luminosos.'], ['hinoki', 'Outono', 'Madeira, manta e lareira.']] },
-  { t: 'Que intensidade combina com você?', o: [['sakura', 'Suave', 'Perto da pele, para quem se aproxima.'], ['yuzu', 'Equilibrada', 'Presente sem pesar.'], ['hinoki', 'Marcante', 'Deixa rastro por onde passa.']] }
-];
-const MSG = { sakura: 'Delicado, elegante e acolhedor.', yuzu: 'Luminoso, vivo e cheio de energia.', hinoki: 'Profundo, sereno e inesquecível.' };
-let qp = 0, qs = { sakura: 0, yuzu: 0, hinoki: 0 };
-function renderQuiz() {
-  const box = $('#quiz'), nome = S.perfil.nome;
-  if (S.perfil.quiz && qp === -1) return resultado();
-  const prog = `<div class="q-prog" aria-hidden="true">${[0, 1, 2, 3, 4].map(i => `<i class="${i <= qp ? 'on' : ''}"></i>`).join('')}</div>`;
-  if (qp === 0) {
-    box.innerHTML = prog + `<h3>Como podemos te chamar?</h3><p class="sub">Para deixar a experiência com a sua cara.</p>
-      <form class="q-nome" id="q-nome"><input id="q-nome-i" maxlength="20" autocomplete="given-name" placeholder="Seu primeiro nome" value="${esc(nome)}" aria-label="Seu primeiro nome"><button class="btn btn-ouro" style="color:var(--noite)" type="submit">Começar ${ic('arrow')}</button></form>
-      <button class="pular" type="button" id="q-pular">Pular esta etapa</button>`;
-    return;
-  }
-  const q = QS[qp - 1];
-  box.innerHTML = prog + `<h3>${esc(q.t)}</h3><p class="sub">Pergunta ${qp} de 4</p>
-    <div class="opcoes">${q.o.map(([s, a, b]) => `<button class="opcao" type="button" data-q="${s}">${ic(s)}<b>${a}</b><span>${b}</span></button>`).join('')}</div>`;
-}
-function resultado() {
-  const slug = S.perfil.quiz.slug, p = porSlug(slug), pct = S.perfil.quiz.pct, nome = S.perfil.nome;
-  $('#quiz').innerHTML = `<div class="res"><img src="${p.imagem}" alt="Frasco ${esc(p.nome)}">
-    <div><p class="eyebrow">Sua assinatura olfativa</p><h3>${nome ? esc(nome) + ', o seu é ' : 'O seu é '}${esc(p.nome)}.</h3>
-    <p class="sub" style="margin-bottom:4px">${MSG[slug]} ${esc(p.descricao)}</p>
-    <div class="afin"><span>Afinidade ${pct}%</span><div class="barra"><i style="width:${pct}%"></i></div></div>
-    <div class="presente-q">${ic('gift')} Mimo liberado: <b>10% na sua primeira compra</b>, aplicado na sacola.</div>
-    <div class="btns"><button class="btn-vinho" type="button" data-add="${p.id}">Levar ${esc(p.nome)} · ${brl(p.preco)}</button><button class="pular" type="button" id="q-refazer">Refazer o teste</button></div></div></div>`;
-}
-$('#quiz').addEventListener('submit', e => {
-  if (e.target.id !== 'q-nome') return; e.preventDefault();
-  S.perfil.nome = $('#q-nome-i').value.trim().replace(/\s.*/, ''); save(); aplicarPerfil(); qp = 1; renderQuiz();
-});
-$('#quiz').addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
-  if (b.id === 'q-pular') { qp = 1; renderQuiz(); }
-  else if (b.id === 'q-refazer') { qp = 0; qs = { sakura: 0, yuzu: 0, hinoki: 0 }; S.perfil.quiz = null; save(); renderQuiz(); }
-  else if (b.dataset.q) {
-    qs[b.dataset.q]++; qp++;
-    if (qp > 4) {
-      const ord = Object.entries(qs).sort((a, c) => c[1] - a[1]), top = ord[0];
-      S.perfil.quiz = { slug: top[0], pct: Math.round(60 + top[1] / 4 * 40) }; save(); qp = -1;
-      resultado(); aplicarPerfil(); desbloquear('assinatura', 'Mimo liberado: 10% na primeira compra.');
-      const r = $('#quiz').getBoundingClientRect(); confete(r.left + r.width / 2, r.top + 120);
-    } else renderQuiz();
-  }
-});
-
 /* ---------------- exclusividade: gravação e hanko ---------------- */
 let grScent = 'sakura';
 function renderEx() {
@@ -485,8 +435,7 @@ function heroRolar() {
 addEventListener('resize', layoutCena);
 
 /* ---------------- início ---------------- */
-layoutCena(); atualizaContador(); renderMimos(); renderQuiz(); aoRolar();
-if (S.perfil.quiz) { qp = -1; renderQuiz(); }
+layoutCena(); atualizaContador(); renderMimos(); aoRolar();
 if (S.perfil.gravacao) $('#gr-nome').value = S.perfil.gravacao;
 fetch('/api/perfumes').then(r => r.json()).then(d => {
   P = d; S.sacola = S.sacola.filter(i => por(i.id)); save();
