@@ -161,10 +161,7 @@ if (!reduz && matchMedia('(pointer:fine)').matches) {
 
 /* personalização: o site muda conforme o que o cliente faz */
 function aplicarPerfil() {
-  const m = melhor(), n = S.perfil.nome;
-  const eb = $('#hero-eyebrow'), sub = $('#hero-sub');
-  eb.innerHTML = `${ic('sakura')} ${n ? 'Olá, ' + esc(n) : 'Perfumaria japonesa'}`;
-  if (m) { const p = porSlug(m); sub.innerHTML = `Pelo que você escolheu, <b>${esc(p.nome)}</b> parece ser o seu. ${esc(p.tagline)}`; }
+  const m = melhor();
   $$('.cartao').forEach(c => {
     const eh = c.dataset.slug === m; c.classList.toggle('match', eh);
     $('.rot', c).textContent = eh ? 'Seu match' : porSlug(c.dataset.slug).familia.split(' ')[0];
@@ -367,10 +364,14 @@ function aoRolar() {
   const r = jornada.getBoundingClientRect(), total = r.height - innerHeight, p = clamp(-r.top / total, 0, 1);
   const idx = Math.min(2, Math.floor(p * 3 * .999));
   if (jornada.dataset.idx != idx) {
-    jornada.dataset.idx = idx; caps.forEach((c, i) => c.classList.toggle('on', i === idx)); fotos.forEach((f, i) => f.classList.toggle('on', i === idx)); $('#kanji').textContent = KJ[idx];
+    jornada.dataset.idx = idx; caps.forEach((c, i) => c.classList.toggle('on', i === idx)); fotos.forEach((f, i) => f.classList.toggle('on', i === idx)); $('#kanji').textContent = KJ[idx]; $('#num-gigante').textContent = '0' + (idx + 1); $$('.idx-j button').forEach((b, k) => b.classList.toggle('on', k === idx));
   }
   jornada.style.setProperty('--p', p); $('#kanji').style.setProperty('--p', p); $('#prog-j').style.width = p * 100 + '%';
 }
+$$('.idx-j button').forEach(b => b.addEventListener('click', () => {
+  const r = jornada.getBoundingClientRect(), total = r.height - innerHeight;
+  scrollTo({ top: scrollY + r.top + total * (+b.dataset.ir / 3 + .05), behavior: reduz ? 'auto' : 'smooth' });
+}));
 addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(aoRolar); } }, { passive: true });
 
 if (!reduz) {
@@ -423,7 +424,7 @@ function heroRolar() {
   prog = clamp((topo - wrap.getBoundingClientRect().top) / D, 0, 1);
   $('#mimos').classList.toggle('esconde', wrap.getBoundingClientRect().bottom > innerHeight * .92);
   if (reduz) return;
-  conteudo.style.opacity = 1 - clamp(prog * 1.35, 0, 1);
+  conteudo.style.opacity = 1 - clamp(prog * 1.35, 0, 1); $('#selo-hero').style.opacity = 1 - clamp(prog * 2.2, 0, 1);
   conteudo.style.transform = `translate3d(0,${-prog * 46}px,0)`;
   $('#rolar').style.opacity = prog > .04 ? 0 : 1;
   const f = clamp((prog - .5) / .3, 0, 1), fim = $('#hero-fim');
@@ -440,5 +441,6 @@ if (S.perfil.gravacao) $('#gr-nome').value = S.perfil.gravacao;
 fetch('/api/perfumes').then(r => r.json()).then(d => {
   P = d; S.sacola = S.sacola.filter(i => por(i.id)); save();
   renderCatalogo(); renderEx(); atualizaContador(); aplicarPerfil(); renderMimos();
+  $$('[data-preco]').forEach(e => { const p = por(+e.dataset.preco); if (p) e.textContent = '· ' + brl(p.preco); });
 }).catch(() => { $('#grade').innerHTML = '<p class="carregando">Não foi possível carregar o catálogo. Recarregue a página.</p>'; });
 })();

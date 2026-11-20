@@ -122,6 +122,11 @@
       <h2>Flor de cerejeira,<br><em>com o seu nome gravado.</em></h2>
       <a class="btn btn-ouro" href="#colecao" tabindex="-1">Ver a coleção</a>
     </div>
+    <a class="selo-hero" id="selo-hero" href="#exclusivo" aria-label="Edição numerada de 300 frascos, com o seu nome gravado. Saiba mais">
+      <svg viewBox="0 0 120 120" aria-hidden="true"><defs><path id="circ" d="M60,60 m-47,0 a47,47 0 1,1 94,0 a47,47 0 1,1 -94,0"/></defs>
+        <g class="gira"><text><textPath href="#circ" textLength="292" lengthAdjust="spacing">EDIÇÃO NUMERADA · 300 FRASCOS ·</textPath></text></g>
+        <circle cx="60" cy="60" r="29" class="aro"/><text x="60" y="71" text-anchor="middle" class="k">K</text></svg>
+    </a>
     <a class="rolar" id="rolar" href="#colecao" aria-label="Rolar a página"><span></span><em>role</em></a>
   </section>
   </div>
@@ -149,18 +154,42 @@
   <!-- 4. JORNADA DAS NOTAS (rolagem cinematográfica) -->
   <section class="jornada" id="jornada" data-idx="0" aria-label="A jornada das notas">
     <div class="palco-j">
-      <div class="fundo-j"></div>
-      <div class="kanji" id="kanji" aria-hidden="true">桜</div>
+      <div class="fundo-j f0"></div><div class="fundo-j f1"></div><div class="fundo-j f2"></div>
       <div class="fotos-j" aria-hidden="true">
         <img class="foto-j on" src="/img/sakura.jpg" alt="">
         <img class="foto-j" src="/img/yuzu.jpg" alt="">
         <img class="foto-j" src="/img/hinoki.jpg" alt="">
       </div>
+      <div class="kanji" id="kanji" aria-hidden="true">桜</div>
+      <div class="num-gigante" id="num-gigante" aria-hidden="true">01</div>
       <div class="textos-j">
-        <article class="cap on"><svg class="ic gr"><use href="#i-sakura"/></svg><p class="eyebrow claro">Capítulo 1 · Sakura</p><h2>Primavera, <em>em um frasco.</em></h2><p>A abertura leve da flor de cerejeira encontra o chá branco e se despede em um almíscar macio.</p></article>
-        <article class="cap"><svg class="ic gr"><use href="#i-yuzu"/></svg><p class="eyebrow claro">Capítulo 2 · Yuzu</p><h2>O sol de inverno, <em>colhido à mão.</em></h2><p>Cítrico vibrante com um toque de gengibre, assentado em uma madeira clara e luminosa.</p></article>
-        <article class="cap"><svg class="ic gr"><use href="#i-hinoki"/></svg><p class="eyebrow claro">Capítulo 3 · Hinoki</p><h2>Uma floresta <em>que acolhe.</em></h2><p>Cipreste japonês, musgo de carvalho e um traço de incenso: calma, profundidade e presença.</p></article>
+        <article class="cap on">
+          <div class="cab-j"><svg class="ic gr"><use href="#i-sakura"/></svg><p class="eyebrow claro">Capítulo 1 · Sakura</p></div>
+          <h2>Primavera, <em>em um frasco.</em></h2>
+          <p class="desc">A abertura leve da flor de cerejeira encontra o chá branco e se despede em um almíscar macio.</p>
+          <ul class="pira-j" aria-label="Notas de Sakura"><li><small>Topo</small><b>Flor de cerejeira</b></li><li><small>Coração</small><b>Chá branco</b></li><li><small>Fundo</small><b>Almíscar</b></li></ul>
+          <div class="cta-j"><button class="btn btn-ouro" type="button" data-add="1">Levar Sakura <span data-preco="1"></span></button><button class="link-claro" type="button" data-detalhe="1">Ver detalhes</button></div>
+        </article>
+        <article class="cap">
+          <div class="cab-j"><svg class="ic gr"><use href="#i-yuzu"/></svg><p class="eyebrow claro">Capítulo 2 · Yuzu</p></div>
+          <h2>O sol de inverno, <em>colhido à mão.</em></h2>
+          <p class="desc">Cítrico vibrante com um toque de gengibre, assentado em uma madeira clara e luminosa.</p>
+          <ul class="pira-j" aria-label="Notas de Yuzu"><li><small>Topo</small><b>Yuzu</b></li><li><small>Coração</small><b>Gengibre</b></li><li><small>Fundo</small><b>Madeira clara</b></li></ul>
+          <div class="cta-j"><button class="btn btn-ouro" type="button" data-add="2">Levar Yuzu <span data-preco="2"></span></button><button class="link-claro" type="button" data-detalhe="2">Ver detalhes</button></div>
+        </article>
+        <article class="cap">
+          <div class="cab-j"><svg class="ic gr"><use href="#i-hinoki"/></svg><p class="eyebrow claro">Capítulo 3 · Hinoki</p></div>
+          <h2>Uma floresta <em>que acolhe.</em></h2>
+          <p class="desc">Cipreste japonês, musgo de carvalho e um traço de incenso: calma, profundidade e presença.</p>
+          <ul class="pira-j" aria-label="Notas de Hinoki"><li><small>Topo</small><b>Cipreste hinoki</b></li><li><small>Coração</small><b>Musgo de carvalho</b></li><li><small>Fundo</small><b>Incenso</b></li></ul>
+          <div class="cta-j"><button class="btn btn-ouro" type="button" data-add="3">Levar Hinoki <span data-preco="3"></span></button><button class="link-claro" type="button" data-detalhe="3">Ver detalhes</button></div>
+        </article>
       </div>
+      <nav class="idx-j" aria-label="Capítulos">
+        <button type="button" class="on" data-ir="0"><b>01</b><i></i><span>Sakura</span></button>
+        <button type="button" data-ir="1"><b>02</b><i></i><span>Yuzu</span></button>
+        <button type="button" data-ir="2"><b>03</b><i></i><span>Hinoki</span></button>
+      </nav>
       <div class="prog-j" aria-hidden="true"><i id="prog-j"></i></div>
     </div>
   </section>
