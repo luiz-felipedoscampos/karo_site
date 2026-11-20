@@ -351,3 +351,9 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 @media (max-width:900px){.hero h1{font-size:44px}.hero .btn-ouro{padding:16px 28px}.hero-acoes{gap:18px}}
 .mimos{transition:opacity .5s}.mimos.esconde{opacity:0;pointer-events:none}
 @media (max-width:900px){.hero .eyebrow{letter-spacing:.2em;font-size:10px;gap:0}.hero .eyebrow::before{display:none}.hero-conteudo{padding-bottom:44px}.hero .btn-ouro{padding:15px 26px}}
+
+.luz{position:absolute;inset:0;z-index:-2;pointer-events:none;mix-blend-mode:soft-light;background:radial-gradient(circle 420px at var(--lx,68%) var(--ly,42%),rgba(255,226,190,.95),rgba(255,200,150,.35) 45%,transparent 72%)}
+.hero-grad{transition:none}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:rgba(14,5,8,var(--escuro,0))}
+.cena svg{transform-origin:70% 55%;will-change:transform}
+.hero-conteudo{will-change:opacity,transform}

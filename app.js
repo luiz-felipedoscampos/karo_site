@@ -437,47 +437,42 @@ if (!reduz) {
 }
 
 
-/* ---------------- abertura: a tampa sai e o perfume é borrifado ao rolar ---------------- */
-const cab = $('.cabecalho'), wrap = $('#hero-wrap'), heroEl = $('.hero'), cena = $('#cena'), tampa = $('#tampa'), cabeca = $('#cabeca');
-let escala = 1, borrifado = false, soltaT;
+/* ---------------- abertura: luz que segue o cursor, profundidade e aproximação ao rolar ---------------- */
+const cab = $('.cabecalho'), wrap = $('#hero-wrap'), heroEl = $('.hero'), cena = $('#cena'), luz = $('#luz'), svgCena = cena.querySelector('svg'), conteudo = $('.hero-conteudo');
+const ease = t => t * t * (3 - 2 * t);
+let tx = .68, ty = .42, mx = .68, my = .42, ativo = false, tocou = false, prog = 0, visivel = true;
 function layoutCena() {
   document.documentElement.style.setProperty('--cab', cab.offsetHeight + 'px');
   const W = heroEl.clientWidth, H = heroEl.clientHeight, s = Math.max(W / 1536, H / 1024), mob = W < 1000;
   const w = 1536 * s, h = 1024 * s;
   Object.assign(cena.style, { width: w + 'px', height: h + 'px', left: (W - w) * (mob ? .72 : .70) + 'px', top: (H - h) * (mob ? 0 : .12) + 'px' });
-  escala = s; neb.size();
 }
-function borrifar() {
-  if (reduz) return;
-  const c = cena.getBoundingClientRect(), hr = heroEl.getBoundingClientRect();
-  const ox = c.left - hr.left + 1075 * escala, oy = c.top - hr.top + 237 * escala, k = escala / 1.1;
-  let n = 0;
-  const tick = () => {
-    const forca = n < 4 ? 1 : Math.max(0, 1 - (n - 4) / 14);          // jato curto: ~0,3 s
-    for (let i = 0; i < 16 * forca; i++) {
-      const a = Math.PI + (Math.random() - .5) * .62 + (Math.random() - .5) * .1 - .12, v = (5 + Math.random() * 11) * k;
-      neb.add({ kind: 'micro', rgb: [255, 240, 226], al: .55 + Math.random() * .4, x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, max: 26 + Math.random() * 34, s: (.7 + Math.random() * 1.5) * Math.max(.8, k), rot: 0, vr: 0 });
-    }
-    if (n % 2 === 0 && forca > 0) {
-      const a = Math.PI + (Math.random() - .5) * .5 - .12, v = (3.5 + Math.random() * 4.5) * k;
-      neb.add({ kind: 'mist', al: .22, rgb: [255, 236, 224], x: ox - 10 * k, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, max: 80 + Math.random() * 50, s: (10 + Math.random() * 16) * k, rot: 0, vr: 0 });
-    }
-    if (++n < 20) requestAnimationFrame(tick);
-  };
-  tick();
+function quadro(t) {
+  if (!visivel) { ativo = false; return; }
+  if (!tocou) { tx = .68 + Math.sin(t / 2600) * .09; ty = .42 + Math.cos(t / 3300) * .07; }   // respira sozinha (celular e sem mouse)
+  mx += (tx - mx) * .06; my += (ty - my) * .06;
+  const W = heroEl.clientWidth, H = heroEl.clientHeight, z = 1.045 + .2 * ease(prog);
+  luz.style.setProperty('--lx', mx * W + 'px'); luz.style.setProperty('--ly', my * H + 'px');
+  svgCena.style.transform = `translate3d(${(.5 - mx) * -22}px,${(.5 - my) * -14}px,0) scale(${z})`;
+  requestAnimationFrame(quadro);
 }
-const ease = t => t * t * (3 - 2 * t);
+function acorda() { if (!ativo && !reduz) { ativo = true; requestAnimationFrame(quadro); } }
+heroEl.addEventListener('pointermove', e => {
+  if (e.pointerType === 'touch') return;
+  const r = heroEl.getBoundingClientRect(); tocou = true; tx = (e.clientX - r.left) / r.width; ty = (e.clientY - r.top) / r.height; acorda();
+});
+heroEl.addEventListener('pointerleave', () => { tocou = false; });
+new IntersectionObserver(([en]) => { visivel = en.isIntersecting; if (visivel) acorda(); }).observe(heroEl);
 function heroRolar() {
   const D = wrap.offsetHeight - heroEl.offsetHeight, topo = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cab')) || 104;
-  const s = clamp((topo - wrap.getBoundingClientRect().top) / D, 0, 1);
-  const t = ease(clamp(s / .6, 0, 1));
+  prog = clamp((topo - wrap.getBoundingClientRect().top) / D, 0, 1);
   $('#mimos').classList.toggle('esconde', wrap.getBoundingClientRect().bottom > innerHeight * .92);
-  if (!reduz) {
-    tampa.setAttribute('transform', `translate(0 ${-340 * t})`);
-    $('#rolar').style.opacity = s > .04 ? 0 : 1;
-    if (s >= .66 && !borrifado) { borrifado = true; borrifar(); }
-    else if (s < .5) borrifado = false;
-  }
+  if (reduz) return;
+  conteudo.style.opacity = 1 - clamp(prog * 1.35, 0, 1);
+  conteudo.style.transform = `translate3d(0,${-prog * 46}px,0)`;
+  $('#rolar').style.opacity = prog > .04 ? 0 : 1;
+  heroEl.style.setProperty('--escuro', (prog * .55).toFixed(3));
+  acorda();
 }
 addEventListener('resize', layoutCena);
 
