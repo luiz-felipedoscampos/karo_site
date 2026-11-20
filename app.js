@@ -84,7 +84,7 @@ class Fx {
       x.globalCompositeOperation = q.kind === 'mist' ? 'lighter' : 'source-over';
       if (q.kind === 'mist') {
         const R = q.s * (1 + k * 2.6), gr = x.createRadialGradient(q.x, q.y, 0, q.x, q.y, R);
-        gr.addColorStop(0, `rgba(${r},${g},${b},${.085 * a})`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        gr.addColorStop(0, `rgba(${r},${g},${b},${.085 * a * (q.al ?? 1)})`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
         x.fillStyle = gr; x.beginPath(); x.arc(q.x, q.y, R, 0, 6.3); x.fill();
       } else {
         x.save(); x.translate(q.x, q.y); x.rotate(q.rot); x.fillStyle = `rgba(${r},${g},${b},${Math.min(1, a * 1.4)})`; x.strokeStyle = x.fillStyle;
@@ -445,17 +445,16 @@ function layoutCena() {
   escala = s; neb.size();
 }
 function borrifar() {
-  cabeca.classList.add('apertado'); clearTimeout(soltaT); soltaT = setTimeout(() => cabeca.classList.remove('apertado'), 520);
   if (reduz) return;
   const c = cena.getBoundingClientRect(), hr = heroEl.getBoundingClientRect();
-  const ox = c.left - hr.left + 1036 * escala, oy = c.top - hr.top + 239 * escala, k = escala / .9;
+  const ox = c.left - hr.left + 1092 * escala, oy = c.top - hr.top + 236 * escala, k = escala / .9;
   let n = 0;
   const tick = () => {
-    for (let i = 0; i < 9; i++) {
-      const a = Math.PI + (Math.random() - .5) * .42 - .22, v = (4 + Math.random() * 8) * k, gota = Math.random() < .16;
-      neb.add({ kind: gota ? 'dot' : 'mist', rgb: gota ? [255, 226, 205] : [255, 238, 228], x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, max: gota ? 40 + Math.random() * 30 : 38 + Math.random() * 46, s: (gota ? 3 + Math.random() * 3 : 6 + Math.random() * 14) * k, rot: 0, vr: 0 });
+    if (n % 2 === 0) {
+      const a = -Math.PI / 2 - .5 + (Math.random() - .5) * 1.1, v = (2 + Math.random() * 2.6) * k;
+      neb.add({ kind: 'mist', al: .7, rgb: [255, 236, 224], x: ox + (Math.random() - .5) * 20 * k, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, max: 100 + Math.random() * 50, s: (16 + Math.random() * 22) * k, rot: 0, vr: 0 });
     }
-    if (++n < 22) requestAnimationFrame(tick);
+    if (++n < 54) requestAnimationFrame(tick);
   };
   tick();
 }
@@ -463,10 +462,10 @@ const ease = t => t * t * (3 - 2 * t);
 function heroRolar() {
   const D = wrap.offsetHeight - heroEl.offsetHeight, topo = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cab')) || 104;
   const s = clamp((topo - wrap.getBoundingClientRect().top) / D, 0, 1);
-  const t = ease(clamp(s / .6, 0, 1)), mob = innerWidth < 1000;
+  const t = ease(clamp(s / .6, 0, 1));
   if (!reduz) {
-    const vx = mob ? -215 : 300, vy = mob ? -30 : 0, rot = mob ? -24 : 24;
-    tampa.setAttribute('transform', `translate(${vx * t} ${vy * t - 55 * Math.sin(Math.PI * t)}) rotate(${rot * t} 1092 190)`);
+    tampa.setAttribute('transform', `translate(0 ${-300 * t})`);
+    tampa.style.opacity = 1 - clamp((t - .55) / .45, 0, 1);
     $('#rolar').style.opacity = s > .04 ? 0 : 1;
     if (s >= .66 && !borrifado) { borrifado = true; borrifar(); }
     else if (s < .5) borrifado = false;
