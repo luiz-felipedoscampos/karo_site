@@ -443,15 +443,20 @@ const ease = t => t * t * (3 - 2 * t);
 let tx = .68, ty = .42, mx = .68, my = .42, ativo = false, tocou = false, prog = 0, visivel = true;
 function layoutCena() {
   document.documentElement.style.setProperty('--cab', cab.offsetHeight + 'px');
-  const W = heroEl.clientWidth, H = heroEl.clientHeight, s = Math.max(W / 1536, H / 1024), mob = W < 1000;
-  const w = 1536 * s, h = 1024 * s;
-  Object.assign(cena.style, { width: w + 'px', height: h + 'px', left: (W - w) * (mob ? .72 : .70) + 'px', top: (H - h) * (mob ? 0 : .12) + 'px' });
+  const W = heroEl.clientWidth, H = heroEl.clientHeight, mob = W < 1000;
+  if (mob) {   // celular: foto preenche a tela
+    const s = Math.max(W / 1536, H / 1024), w = 1536 * s, h = 1024 * s;
+    Object.assign(cena.style, { width: w + 'px', height: h + 'px', left: (W - w) * .72 + 'px', top: '0px' });
+  } else {     // computador: frasco inteiro, encostado à direita; o escuro da foto se funde ao fundo
+    const s = H / 1024 * 1.1, w = 1536 * s, h = 1024 * s;
+    Object.assign(cena.style, { width: w + 'px', height: h + 'px', left: (W - w + 16) + 'px', top: (H - h) * .55 + 'px' });
+  }
 }
 function quadro(t) {
   if (!visivel) { ativo = false; return; }
   if (!tocou) { tx = .68 + Math.sin(t / 2600) * .09; ty = .42 + Math.cos(t / 3300) * .07; }   // respira sozinha (celular e sem mouse)
   mx += (tx - mx) * .06; my += (ty - my) * .06;
-  const W = heroEl.clientWidth, H = heroEl.clientHeight, z = 1.045 + .2 * ease(prog);
+  const W = heroEl.clientWidth, H = heroEl.clientHeight, mob = W < 1000, z = (mob ? 1.045 : 1) + (mob ? .6 : 1.05) * ease(prog);
   luz.style.setProperty('--lx', mx * W + 'px'); luz.style.setProperty('--ly', my * H + 'px');
   svgCena.style.transform = `translate3d(${(.5 - mx) * -22}px,${(.5 - my) * -14}px,0) scale(${z})`;
   requestAnimationFrame(quadro);
@@ -471,6 +476,9 @@ function heroRolar() {
   conteudo.style.opacity = 1 - clamp(prog * 1.35, 0, 1);
   conteudo.style.transform = `translate3d(0,${-prog * 46}px,0)`;
   $('#rolar').style.opacity = prog > .04 ? 0 : 1;
+  const f = clamp((prog - .5) / .3, 0, 1), fim = $('#hero-fim');
+  fim.style.opacity = f; fim.style.transform = `translate3d(0,${(1 - f) * 26}px,0)`; fim.style.pointerEvents = f > .6 ? 'auto' : 'none';
+  fim.setAttribute('aria-hidden', f > .6 ? 'false' : 'true'); fim.querySelector('a').tabIndex = f > .6 ? 0 : -1;
   heroEl.style.setProperty('--escuro', (prog * .55).toFixed(3));
   acorda();
 }
