@@ -162,7 +162,7 @@ if (!reduz && matchMedia('(pointer:fine)').matches) {
 function aplicarPerfil() {
   const m = melhor(), n = S.perfil.nome;
   const eb = $('#hero-eyebrow'), sub = $('#hero-sub');
-  eb.innerHTML = `${ic('sakura')} ${n ? 'Olá, ' + esc(n) + '.' : 'Perfumaria japonesa'} · Edição numerada`;
+  eb.innerHTML = `${ic('sakura')} ${n ? 'Olá, ' + esc(n) : 'Perfumaria japonesa'}`;
   if (m) { const p = porSlug(m); sub.innerHTML = `Pelo que você escolheu, <b>${esc(p.nome)}</b> parece ser o seu. ${esc(p.tagline)}`; }
   $$('.cartao').forEach(c => {
     const eh = c.dataset.slug === m; c.classList.toggle('match', eh);

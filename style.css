@@ -298,7 +298,7 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
     .hero{align-items:flex-end}
   .hero-conteudo{padding:0 22px 64px}
   .hero h1{font-size:44px;margin-bottom:14px}
-  .hero-sub{display:none}
+  .hero-sub{font-size:14.5px;line-height:1.6;margin:0 0 22px;max-width:340px}
   .hero-acoes{gap:10px}
   .hero-acoes .btn{padding:13px 20px}
   .rolar{display:none}
