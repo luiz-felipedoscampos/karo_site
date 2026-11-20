@@ -450,7 +450,7 @@ function layoutCena() {
 function borrifar() {
   if (reduz) return;
   const c = cena.getBoundingClientRect(), hr = heroEl.getBoundingClientRect();
-  const ox = c.left - hr.left + 1066 * escala, oy = c.top - hr.top + 202 * escala, k = escala / 1.1;
+  const ox = c.left - hr.left + 1075 * escala, oy = c.top - hr.top + 237 * escala, k = escala / 1.1;
   let n = 0;
   const tick = () => {
     const forca = n < 4 ? 1 : Math.max(0, 1 - (n - 4) / 14);          // jato curto: ~0,3 s
