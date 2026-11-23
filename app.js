@@ -236,7 +236,7 @@ function amostraEscolhida() {
 function rCheckout(erro = '', v = {}) {
   titulo.textContent = 'Finalizar pedido';
   const t = calc(), am = amostraEscolhida();
-  const nomeV = v.nome ?? '', emailV = v.email ?? '';
+  const nomeV = v.nome ?? '', emailV = v.email ?? '', en = v.endereco || {};
   corpo.innerHTML = `<p>Pedido demonstrativo. Use nome e e-mail fictícios. Nenhum pagamento será cobrado.</p>
     <div class="resumo">${S.sacola.map(i => { const p = por(i.id); return `<div><span>${i.quantidade} × ${esc(p.nome)}</span><span>${brl(p.preco * i.quantidade)}</span></div>`; }).join('')}
       ${am ? `<div><span>1 × Amostra 2 ml ${esc(porSlug(am).nome)}</span><span class="verde">Cortesia</span></div>` : ''}
@@ -248,13 +248,47 @@ function rCheckout(erro = '', v = {}) {
       <input id="nome" name="nome" autocomplete="name" required value="${esc(nomeV)}" ${erro.includes('nome') ? 'aria-invalid="true"' : ''}>
       <label class="l" for="email">E-mail</label>
       <input id="email" name="email" type="email" autocomplete="email" required value="${esc(emailV)}" ${erro.toLowerCase().includes('e-mail') ? 'aria-invalid="true"' : ''}>
+      <label class="l" for="cep">CEP</label>
+      <input id="cep" name="cep" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000" value="${esc(en.cep || '')}" ${erro.includes('endereço') ? 'aria-invalid="true"' : ''}>
+      <p class="cep-msg" id="cep-msg" aria-live="polite"></p>
+      <label class="l" for="rua">Rua</label>
+      <input id="rua" name="rua" autocomplete="address-line1" value="${esc(en.rua || '')}">
+      <div class="duas"><div><label class="l" for="numero">Número</label><input id="numero" name="numero" autocomplete="off" maxlength="10" value="${esc(en.numero || '')}"></div>
+        <div><label class="l" for="comp">Complemento</label><input id="comp" name="comp" autocomplete="address-line2" maxlength="60" value="${esc(en.complemento || '')}"></div></div>
+      <label class="l" for="bairro">Bairro</label>
+      <input id="bairro" name="bairro" value="${esc(en.bairro || '')}">
+      <div class="duas cid"><div><label class="l" for="cidade">Cidade</label><input id="cidade" name="cidade" autocomplete="address-level2" value="${esc(en.cidade || '')}"></div>
+        <div><label class="l" for="uf">UF</label><input id="uf" name="uf" maxlength="2" autocomplete="address-level1" value="${esc(en.uf || '')}"></div></div>
       <label class="opc"><input type="checkbox" id="pres" ${v.presente ? 'checked' : ''}> ${ic('gift')} É um presente (caixa, laço e cartão)</label>
       <div id="pres-box" ${v.presente ? '' : 'hidden'}><label class="l" for="msg">Mensagem do cartão</label><textarea id="msg" maxlength="120" placeholder="Escreva algo carinhoso…">${esc(v.mensagem || '')}</textarea></div>
       ${erro ? `<p class="erro" role="alert">${esc(erro)}</p>` : ''}
       <div class="form-botoes"><button class="btn-vinho" type="submit" id="confirmar">Confirmar pedido</button><button class="btn-contorno" type="button" data-voltar>Voltar à sacola</button></div>
     </form>`;
-  const alvo = erro ? (erro.toLowerCase().includes('e-mail') ? '#email' : erro.includes('nome') ? '#nome' : null) : '#nome';
+  const alvo = erro ? (erro.toLowerCase().includes('e-mail') ? '#email' : erro.includes('nome') ? '#nome' : erro.includes('endereço') ? '#cep' : null) : '#nome';
   if (alvo) $(alvo)?.focus();
+  ligaCep();
+}
+// CEP -> endereço pela ViaCEP (API pública e gratuita). Se falhar, o cliente preenche à mão.
+function ligaCep() {
+  const cep = $('#cep'), msg = $('#cep-msg'); if (!cep) return;
+  let ultimo = '';
+  cep.addEventListener('input', () => {
+    const d = cep.value.replace(/\D/g, '').slice(0, 8);
+    cep.value = d.length > 5 ? d.slice(0, 5) + '-' + d.slice(5) : d;
+    cep.removeAttribute('aria-invalid'); msg.textContent = ''; msg.className = 'cep-msg';
+    if (d.length === 8 && d !== ultimo) { ultimo = d; busca(d); }
+  });
+  async function busca(d) {
+    msg.textContent = 'Buscando endereço…';
+    try {
+      const r = await fetch(`https://viacep.com.br/ws/${d}/json/`);
+      const j = await r.json();
+      if (j.erro) { msg.textContent = 'CEP não encontrado. Preencha o endereço manualmente.'; msg.className = 'cep-msg err'; return; }
+      $('#rua').value = j.logradouro || $('#rua').value; $('#bairro').value = j.bairro || $('#bairro').value;
+      $('#cidade').value = j.localidade || ''; $('#uf').value = j.uf || '';
+      msg.textContent = ''; $('#numero').focus();
+    } catch { msg.textContent = 'Não foi possível buscar o CEP. Preencha o endereço manualmente.'; msg.className = 'cep-msg err'; }
+  }
 }
 function rOk() {
   titulo.textContent = 'Pedido confirmado';
@@ -263,6 +297,7 @@ function rOk() {
     <div class="resumo"><div><span>Pedido</span><strong>#${o.numero}</strong></div><div><span>Total</span><strong>${brl(o.total)}</strong></div></div>
     <p style="margin:16px 0 4px"><b>Seus frascos numerados</b></p>
     <ul class="frasco-lista">${o.frascos.map(f => `<li><span>${esc(f.perfume)}</span><span>nº ${f.numero}</span></li>`).join('')}</ul>
+    ${o.endereco ? `<p>Entrega em <b>${esc(o.endereco.rua)}, ${esc(o.endereco.numero)}${o.endereco.complemento ? ' – ' + esc(o.endereco.complemento) : ''}</b>, ${esc(o.endereco.bairro)} · ${esc(o.endereco.cidade)}/${esc(o.endereco.uf)}</p>` : ''}
     ${o.gravacao ? `<p>${ic('sparkle')} Gravação: <b>${esc(o.gravacao)}</b></p>` : ''}
     ${o.amostra ? `<p>${ic('seal')} Amostra de cortesia: <b>${esc(o.amostra)}</b></p>` : ''}
     ${o.presente ? `<p>${ic('gift')} Presente com cartão${o.mensagem ? ': “' + esc(o.mensagem) + '”' : ''}</p>` : ''}
@@ -274,14 +309,17 @@ async function enviar(e) {
   e.preventDefault();
   const nome = $('#nome').value.trim(), email = $('#email').value.trim(), gravacao = '';
   const presente = $('#pres').checked, mensagem = presente ? $('#msg').value.trim() : '';
-  const v = { nome, email, gravacao, presente, mensagem };
+  const endereco = { cep: $('#cep').value.trim(), rua: $('#rua').value.trim(), numero: $('#numero').value.trim(), complemento: $('#comp').value.trim(),
+    bairro: $('#bairro').value.trim(), cidade: $('#cidade').value.trim(), uf: $('#uf').value.trim().toUpperCase() };
+  const v = { nome, email, gravacao, presente, mensagem, endereco };
   if (nome.length < 3 || !nome.includes(' ')) return rCheckout('Informe o nome completo.', v);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return rCheckout('Informe um e-mail válido.', v);
+  if (endereco.cep.replace(/\D/g, '').length !== 8 || endereco.rua.length < 3 || !endereco.numero || endereco.cidade.length < 2 || !/^[A-Z]{2}$/.test(endereco.uf)) return rCheckout('Confira o endereço de entrega (CEP, rua, número, cidade e UF).', v);
   const btn = $('#confirmar'); btn.disabled = true; btn.textContent = 'Enviando…';
   const t = calc();
   try {
     const r = await fetch('/api/pedidos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-      nome, email, gravacao, presente, mensagem, amostra: amostraEscolhida(), cupom: t.cup ? 'KARO10' : '',
+      nome, email, endereco, gravacao, presente, mensagem, amostra: amostraEscolhida(), cupom: t.cup ? 'KARO10' : '',
       itens: S.sacola.map(i => ({ id: i.id, quantidade: i.quantidade })) }) });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) return rCheckout(d.erro || 'Não foi possível gravar o pedido. Tente novamente.', v);
