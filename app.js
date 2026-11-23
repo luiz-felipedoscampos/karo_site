@@ -406,8 +406,8 @@ function layoutCena() {
   document.documentElement.style.setProperty('--cab', cab.offsetHeight + 'px');
   const W = heroEl.clientWidth, H = heroEl.clientHeight, mob = W < 1000;
   if (mob) {   // celular: foto preenche a tela
-    const s = Math.max(W / 1536, H / 1024), w = 1536 * s, h = 1024 * s;
-    Object.assign(cena.style, { width: w + 'px', height: h + 'px', left: (W - w) * .84 + 'px', top: (-H * .12) + 'px' });
+    const s = Math.max(W / 1536, H / 1024) * .84, w = 1536 * s, h = 1024 * s;
+    Object.assign(cena.style, { width: w + 'px', height: h + 'px', left: (W - w) * .84 + 'px', top: (H * .02) + 'px' });
   } else {     // computador: frasco inteiro, encostado à direita; o escuro da foto se funde ao fundo
     const s = H / 1024 * 1.1, w = 1536 * s, h = 1024 * s;
     Object.assign(cena.style, { width: w + 'px', height: h + 'px', left: (W - w + 16) + 'px', top: (H - h) * .55 + 'px' });
