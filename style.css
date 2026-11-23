@@ -586,3 +586,7 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 .cap .ficha-j .base-j{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(246,232,214,.6);max-width:none;line-height:1.7}
 .cap .ficha-j .rot-j{font-size:10.5px;color:var(--acento);max-width:none}
 @media (max-width:900px){.cap .ficha-j .base-j{font-size:9.5px;letter-spacing:.12em}}
+/* ícones da faixa de diferenciais: traço fino dentro de um círculo discreto */
+.selos .ic{width:46px;height:46px;padding:11px;border:1px solid rgba(110,31,52,.28);border-radius:50%;stroke-width:1.15;box-sizing:border-box;transition:background .4s,border-color .4s,transform .5s}
+.selos li:hover .ic{background:rgba(110,31,52,.07);border-color:rgba(110,31,52,.5);transform:translateY(-2px)}
+.selos li{column-gap:14px}
