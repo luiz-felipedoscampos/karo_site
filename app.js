@@ -10,8 +10,8 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
 /* ---------------- estado (guardado no navegador) ---------------- */
 const KEY = 'karo-estado-v2';
-let S = { sacola: [], perfil: { nome: '', views: {}, favs: [], quiz: null, gravacao: '' }, mimos: {}, cupom: true };
-try { const r = JSON.parse(localStorage.getItem(KEY)); if (r) S = { ...S, ...r, perfil: { ...S.perfil, ...(r.perfil || {}) }, mimos: r.mimos || {} }; } catch {}
+let S = { sacola: [], perfil: { nome: '', views: {} } };
+try { const r = JSON.parse(localStorage.getItem(KEY)); if (r) S = { ...S, ...r, perfil: { ...S.perfil, ...(r.perfil || {}) } }; } catch {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
 let P = [];
 const por = id => P.find(p => p.id === id);
@@ -21,10 +21,8 @@ const unidades = () => S.sacola.reduce((s, i) => s + i.quantidade, 0);
 const FRETE = 1990, GRATIS = 25000;
 function calc() {
   const sub = S.sacola.reduce((s, i) => s + Math.round((por(i.id)?.preco || 0) * 100) * i.quantidade, 0);
-  const cup = !!(S.cupom && S.mimos.assinatura && sub > 0);
-  const desc = cup ? Math.round(sub * 0.10) : 0;
   const frete = sub === 0 || sub >= GRATIS ? 0 : FRETE;
-  return { sub, desc, frete, total: sub - desc + frete, cup };
+  return { sub, frete, total: sub + frete };
 }
 const c2 = v => brl(v / 100);
 
@@ -41,30 +39,12 @@ function melhor() {
   return r && r.a > 0 ? r.slug : null;
 }
 
-/* ---------------- avisos e mimos ---------------- */
+/* ---------------- avisos ---------------- */
 let tt;
 function toast(msg, icon = 'sparkle') {
   const t = $('#toast'); t.innerHTML = ic(icon) + `<span>${msg}</span>`; t.classList.add('on');
   clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 4200);
 }
-function desbloquear(chave, msg) {
-  if (S.mimos[chave]) return;
-  S.mimos[chave] = true; save(); toast(msg, 'gift'); renderMimos();
-  const b = $('#mimos-btn'); b.classList.remove('brilha'); void b.offsetWidth; b.classList.add('brilha');
-  atualizaBag();
-}
-function renderMimos() {
-  const n = (S.mimos.amostra ? 1 : 0) + (S.mimos.assinatura ? 1 : 0);
-  $('#mimos-n').textContent = n + '/2';
-  $('#mimos-box').innerHTML = `
-    <p class="mini" style="margin-bottom:6px">Mimos para você</p>
-    <div class="mimo ${S.mimos.amostra ? 'ok' : ''}">${ic(S.mimos.amostra ? 'seal' : 'heart')}<div><b>Amostra de 2 ml</b><small>${S.mimos.amostra ? 'Liberada. Entra de cortesia no seu pedido.' : 'Adicione um perfume à sacola.'}</small></div></div>
-    <div class="mimo ${S.mimos.assinatura ? 'ok' : ''}">${ic(S.mimos.assinatura ? 'seal' : 'sparkle')}<div><b>10% na primeira compra</b><small>${S.mimos.assinatura ? 'Liberado. Aplicado na sacola (KARO10).' : 'Adicione um perfume à sacola.'}</small></div></div>`;
-}
-$('#mimos-btn').addEventListener('click', () => {
-  const b = $('#mimos-box'), abrir = b.hidden; b.hidden = !abrir; $('#mimos-btn').setAttribute('aria-expanded', abrir);
-});
-document.addEventListener('click', e => { if (!e.target.closest('#mimos')) { $('#mimos-box').hidden = true; $('#mimos-btn').setAttribute('aria-expanded', 'false'); } });
 
 /* ---------------- partículas (neblina do spray e confete de pétalas) ---------------- */
 class Fx {
@@ -123,8 +103,6 @@ function adicionar(id) {
   const it = S.sacola.find(i => i.id === id);
   if (it) it.quantidade = Math.min(99, it.quantidade + 1); else S.sacola.push({ id, quantidade: 1 });
   save(); atualizaContador(true); aplicarPerfil(); if (view === 'sacola') render();
-  desbloquear('assinatura', 'Mimos liberados: 10% na primeira compra e uma amostra de 2 ml.');
-  if (!S.mimos.amostra) { S.mimos.amostra = true; save(); renderMimos(); }
 }
 function atualizaBag() { if (view === 'sacola' || view === 'checkout') render(); }
 
@@ -217,29 +195,19 @@ function rSacola() {
       <span class="subtotal">${brl(p.preco * i.quantidade)}</span></div>`;
   }).join('') +
   (faltam.length ? `<div class="upsell"><h4>Complete sua coleção</h4>${faltam.map(p => `<div class="up-item"><img src="${p.imagem}" alt=""><div><b>${esc(p.nome)}${p.slug === m ? '<span class="tag-match">Combina com você</span>' : ''}</b><small>${esc(p.familia)} · ${brl(p.preco)}</small></div><button type="button" data-add="${p.id}">Adicionar</button></div>`).join('')}</div>` : '') +
-  (S.mimos.assinatura ? `<label class="cupom"><input type="checkbox" id="usar-cupom" ${S.cupom ? 'checked' : ''}> ${ic('gift')} <span>Usar meu mimo: <b>10% de desconto</b> (KARO10)</span></label>` : '') +
   `<div style="margin-top:8px"><div class="tot"><span>Subtotal</span><span>${c2(t.sub)}</span></div>
-   ${t.desc ? `<div class="tot verde"><span>Desconto KARO10</span><span>− ${c2(t.desc)}</span></div>` : ''}
    <div class="tot"><span>Frete</span><span>${t.frete ? c2(t.frete) : 'Grátis'}</span></div>
    <div class="tot final"><span>Total</span><strong>${c2(t.total)}</strong></div></div>
    <p style="margin:6px 0 16px;font-size:13px">ou 3x de ${c2(Math.round(t.total / 3))} sem juros</p>
    <button class="btn-vinho" type="button" data-finalizar>Finalizar pedido</button>
    <button class="btn-contorno" type="button" data-continuar>Continuar comprando</button>`;
 }
-function amostraEscolhida() {
-  if (!S.mimos.amostra) return '';
-  const fora = P.filter(p => !S.sacola.some(i => i.id === p.id));
-  const m = melhor();
-  return (fora.find(p => p.slug === m) || fora[0] || P[0]).slug;
-}
 function rCheckout(erro = '', v = {}) {
   titulo.textContent = 'Finalizar pedido';
-  const t = calc(), am = amostraEscolhida();
+  const t = calc();
   const nomeV = v.nome ?? '', emailV = v.email ?? '', en = v.endereco || {};
   corpo.innerHTML = `<p>Pedido demonstrativo. Use nome e e-mail fictícios. Nenhum pagamento será cobrado.</p>
     <div class="resumo">${S.sacola.map(i => { const p = por(i.id); return `<div><span>${i.quantidade} × ${esc(p.nome)}</span><span>${brl(p.preco * i.quantidade)}</span></div>`; }).join('')}
-      ${am ? `<div><span>1 × Amostra 2 ml ${esc(porSlug(am).nome)}</span><span class="verde">Cortesia</span></div>` : ''}
-      ${t.desc ? `<div class="verde"><span>Desconto KARO10</span><span>− ${c2(t.desc)}</span></div>` : ''}
       <div><span>Frete</span><span>${t.frete ? c2(t.frete) : 'Grátis'}</span></div></div>
     <div class="tot final"><span>Total do pedido</span><strong>${c2(t.total)}</strong></div>
     <form id="form" novalidate>
@@ -298,7 +266,6 @@ function rOk() {
     <ul class="frasco-lista">${o.frascos.map(f => `<li><span>${esc(f.perfume)}</span><span>nº ${f.numero}</span></li>`).join('')}</ul>
     ${o.endereco ? `<p>Entrega em <b>${esc(o.endereco.rua)}, ${esc(o.endereco.numero)}${o.endereco.complemento ? ' – ' + esc(o.endereco.complemento) : ''}</b>${o.endereco.bairro ? ', ' + esc(o.endereco.bairro) : ''} · ${esc(o.endereco.cidade)}/${esc(o.endereco.uf)}</p>` : ''}
     ${o.gravacao ? `<p>${ic('sparkle')} Gravação: <b>${esc(o.gravacao)}</b></p>` : ''}
-    ${o.amostra ? `<p>${ic('seal')} Amostra de cortesia: <b>${esc(o.amostra)}</b></p>` : ''}
     ${o.presente ? `<p>${ic('gift')} Presente com cartão${o.mensagem ? ': “' + esc(o.mensagem) + '”' : ''}</p>` : ''}
     <p>Esta compra foi uma simulação.</p>
     <button class="btn-vinho" type="button" data-continuar>Voltar à loja</button></div>`;
@@ -318,7 +285,7 @@ async function enviar(e) {
   const t = calc();
   try {
     const r = await fetch('/api/pedidos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-      nome, email, endereco, gravacao, presente, mensagem, amostra: amostraEscolhida(), cupom: t.cup ? 'KARO10' : '',
+      nome, email, endereco, gravacao, presente, mensagem,
       itens: S.sacola.map(i => ({ id: i.id, quantidade: i.quantidade })) }) });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) return rCheckout(d.erro || 'Não foi possível gravar o pedido. Tente novamente.', v);
@@ -346,7 +313,6 @@ document.addEventListener('click', e => {
   else if (t.id === 'fechar') fechar();
 });
 document.addEventListener('change', e => {
-  if (e.target.id === 'usar-cupom') { S.cupom = e.target.checked; save(); render(); }
   if (e.target.id === 'pres') $('#pres-box').hidden = !e.target.checked;
 });
 document.addEventListener('submit', e => { if (e.target.id === 'form') enviar(e); });
@@ -432,7 +398,6 @@ new IntersectionObserver(([en]) => { visivel = en.isIntersecting; if (visivel) a
 function heroRolar() {
   const D = wrap.offsetHeight - heroEl.offsetHeight, topo = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cab')) || 104;
   prog = clamp((topo - wrap.getBoundingClientRect().top) / D, 0, 1);
-  $('#mimos').classList.toggle('esconde', wrap.getBoundingClientRect().bottom > innerHeight * .92);
   if (reduz) return;
   conteudo.style.opacity = 1 - clamp(prog * 1.35, 0, 1); $('#selo-hero').style.opacity = 1 - clamp(prog * 2.2, 0, 1);
   conteudo.style.transform = `translate3d(0,${-prog * 46}px,0)`;
@@ -446,10 +411,10 @@ function heroRolar() {
 addEventListener('resize', layoutCena);
 
 /* ---------------- início ---------------- */
-layoutCena(); atualizaContador(); renderMimos(); aoRolar();
+layoutCena(); atualizaContador(); aoRolar();
 fetch('/api/perfumes').then(r => r.json()).then(d => {
   P = d; S.sacola = S.sacola.filter(i => por(i.id)); save();
-  renderCatalogo(); atualizaContador(); aplicarPerfil(); renderMimos();
+  renderCatalogo(); atualizaContador(); aplicarPerfil();
   $$('[data-parc]').forEach(e => { const p = por(+e.dataset.parc); if (p) e.textContent = 'ou 3x de ' + brl(p.preco / 3) + ' sem juros'; });
   $$('[data-preco]').forEach(e => { const p = por(+e.dataset.preco); if (p) e.textContent = '· ' + brl(p.preco); });
 }).catch(() => { if ($('#grade')) $('#grade').innerHTML = '<p class="carregando">Não foi possível carregar o catálogo. Recarregue a página.</p>'; });
