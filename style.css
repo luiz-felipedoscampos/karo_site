@@ -438,3 +438,10 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 @media (max-width:900px){.kanji{right:50%;transform:translate(50%,-50%);top:22%;font-size:46vw;opacity:.12}.palco-j{top:var(--cab,96px)!important}}
 .cap .cab-j .eyebrow{font-size:12px;color:var(--acento);max-width:none;letter-spacing:.26em;font-weight:600}
 @media (max-width:900px){.cta-j .link-claro{display:none}.cap .cab-j .eyebrow{font-size:11px;letter-spacing:.2em}}
+.cta-j .fav{position:static;width:46px;height:46px;background:rgba(255,255,255,.08);color:var(--acento);border:1px solid color-mix(in srgb,var(--acento) 55%,transparent);transition:background .3s,color .3s,transform .2s}
+.cta-j .fav:hover{background:rgba(255,255,255,.16)}
+.cta-j .fav[aria-pressed=true]{background:var(--acento);color:#1a0a10;border-color:var(--acento)}
+.parc-j{margin:14px 0 0;font-size:12.5px;letter-spacing:.04em;color:rgba(246,232,214,.7)}
+@media (max-width:900px){.parc-j{margin-top:10px;font-size:12px}}
+.cap .parc-j{font-size:12.5px;letter-spacing:.04em;color:rgba(246,232,214,.7);max-width:none;margin:14px 0 0}
+@media (max-width:900px){.textos-j{bottom:78px}.cap .parc-j{font-size:12px;margin-top:10px}}

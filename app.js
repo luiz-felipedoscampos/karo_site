@@ -130,6 +130,7 @@ function atualizaBag() { if (view === 'sacola' || view === 'checkout') render();
 
 /* ---------------- catálogo ---------------- */
 function renderCatalogo() {
+  if (!$('#grade')) return;
   $('#grade').innerHTML = P.map(p => `
     <article class="cartao" data-slug="${p.slug}">
       <div class="cartao-in">
@@ -419,6 +420,8 @@ layoutCena(); atualizaContador(); renderMimos(); aoRolar();
 fetch('/api/perfumes').then(r => r.json()).then(d => {
   P = d; S.sacola = S.sacola.filter(i => por(i.id)); save();
   renderCatalogo(); atualizaContador(); aplicarPerfil(); renderMimos();
+  $$('[data-parc]').forEach(e => { const p = por(+e.dataset.parc); if (p) e.textContent = 'ou 3x de ' + brl(p.preco / 3) + ' sem juros'; });
+  $$('.cta-j [data-fav]').forEach(b => b.setAttribute('aria-pressed', S.perfil.favs.includes(b.dataset.fav)));
   $$('[data-preco]').forEach(e => { const p = por(+e.dataset.preco); if (p) e.textContent = '· ' + brl(p.preco); });
-}).catch(() => { $('#grade').innerHTML = '<p class="carregando">Não foi possível carregar o catálogo. Recarregue a página.</p>'; });
+}).catch(() => { if ($('#grade')) $('#grade').innerHTML = '<p class="carregando">Não foi possível carregar o catálogo. Recarregue a página.</p>'; });
 })();
