@@ -104,35 +104,35 @@ function adicionar(id, adiar) {
   if (it) it.quantidade = Math.min(99, it.quantidade + 1); else S.sacola.push({ id, quantidade: 1 });
   save(); if (!adiar) atualizaContador(true); aplicarPerfil(); if (view === 'sacola') render();
 }
-/* o frasco sai do botão, desenha um arco suave e pousa na sacola do topo */
+/* um medalhão dourado com o frasco sai do botão, desenha uma curva suave e acende a sacola */
 function voar(origem, p) {
-  const alvo = $('.btn-sacola');
-  if (reduz || !alvo || view) return false;
-  const a = origem.getBoundingClientRect(), b = $('#contador').getBoundingClientRect();
-  const w = 46, h = 68, x0 = a.left + a.width / 2 - w / 2, y0 = a.top + a.height / 2 - h / 2, x1 = b.left + b.width / 2 - w / 2, y1 = b.top + b.height / 2 - h / 2;
-  const f = document.createElement('img'); f.src = p.imagem; f.alt = ''; f.className = 'voador'; f.style.cssText = `width:${w}px;height:${h}px;left:0;top:0`;
-  document.body.appendChild(f);
-  const xm = x0 + (x1 - x0) * .5, ym = Math.min(y0, y1) - 70;
-  const an = f.animate([
-    { transform: `translate(${x0}px,${y0}px) scale(.7)`, opacity: 0, offset: 0 },
-    { transform: `translate(${x0}px,${y0 - 16}px) scale(1)`, opacity: 1, offset: .14, easing: 'cubic-bezier(.3,0,.4,1)' },
-    { transform: `translate(${xm}px,${ym}px) scale(.8) rotate(-6deg)`, opacity: 1, offset: .55, easing: 'cubic-bezier(.5,0,.8,.6)' },
-    { transform: `translate(${x1}px,${y1}px) scale(.2) rotate(4deg)`, opacity: .35, offset: 1 }
-  ], { duration: 900, fill: 'forwards' });
-  an.onfinish = () => { f.remove(); alvo.classList.remove('bate'); void alvo.offsetWidth; alvo.classList.add('bate'); atualizaContador(true); };
-  an.oncancel = () => { f.remove(); atualizaContador(true); };
+  const cont = $('#contador'); if (reduz || !cont || view) return false;
+  const a = origem.getBoundingClientRect(), b = cont.getBoundingClientRect(), T = 64;
+  const x0 = a.left + a.width / 2, y0 = a.top + a.height / 2, x1 = b.left + b.width / 2, y1 = b.top + b.height / 2;
+  const cx = (x0 + x1) / 2 + (x1 - x0) * .12, cy = Math.min(y0, y1) - Math.max(90, Math.abs(y1 - y0) * .35);
+  const f = document.createElement('div'); f.className = 'voador'; f.style.backgroundImage = `url(${p.imagem})`; document.body.appendChild(f);
+  const D = 950, t0 = performance.now(), suave = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; let ult = 0;
+  (function passo(agora) {
+    const t = Math.min(1, (agora - t0) / D), e = suave(t), u = 1 - e;
+    const x = u * u * x0 + 2 * u * e * cx + e * e * x1, y = u * u * y0 + 2 * u * e * cy + e * e * y1, s = 1 - .7 * e;
+    f.style.transform = `translate(${x - T / 2}px,${y - T / 2}px) scale(${s})`;
+    f.style.opacity = t < .12 ? t / .12 : t > .88 ? (1 - t) / .12 : 1;
+    if (agora - ult > 40 && t < .93) { ult = agora; const r = document.createElement('i'); r.className = 'rastro'; r.style.left = x + 'px'; r.style.top = y + 'px'; r.style.setProperty('--s', s); document.body.appendChild(r); setTimeout(() => r.remove(), 700); }
+    if (t < 1) requestAnimationFrame(passo);
+    else {
+      f.remove();
+      const o = document.createElement('i'); o.className = 'onda'; o.style.left = x1 + 'px'; o.style.top = y1 + 'px'; document.body.appendChild(o); setTimeout(() => o.remove(), 900);
+      const bt = $('.btn-sacola'); bt.classList.remove('bate'); void bt.offsetWidth; bt.classList.add('bate'); atualizaContador(true);
+    }
+  })(t0);
   return true;
 }
-/* ficha técnica discreta, aberta ou fechada conforme o cliente deixou */
-const fichasAbertas = new Set();
+/* ficha técnica (frase e linhas vêm do catálogo) */
 function fichaHtml(p) {
   const n = p.piramide, l = (k, v) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`;
-  return `<details class="ficha" data-ficha="${p.id}"${fichasAbertas.has(p.id) ? ' open' : ''}><summary>Ficha técnica</summary><dl>`
-    + l('Família olfativa', p.familia) + l('Concentração', p.concentracao || 'Eau de Parfum')
-    + l('Topo', n.topo) + l('Coração', n.coracao) + l('Fundo', n.fundo) + l('Edição', '300 frascos numerados') + `</dl></details>`;
+  return `<section class="ficha"><h4>Ficha técnica</h4><dl>` + l('Concentração', p.concentracao || 'Eau de Parfum') + l('Volume', p.volume + ' ml')
+    + l('Topo', n.topo) + l('Coração', n.coracao) + l('Fundo', n.fundo) + l('Edição', '300 frascos numerados') + `</dl></section>`;
 }
-document.addEventListener('toggle', e => { const d = e.target; if (d.matches?.('.ficha')) { const id = +d.dataset.ficha; d.open ? fichasAbertas.add(id) : fichasAbertas.delete(id); } }, true);
-function atualizaBag() { if (view === 'sacola' || view === 'checkout') render(); }
 
 /* ---------------- catálogo ---------------- */
 function renderCatalogo() {
@@ -194,14 +194,14 @@ function render() { ({ detalhe: rDetalhe, sacola: rSacola, checkout: rCheckout, 
 function rDetalhe() {
   const p = por(ctx); if (!p) return fechar();
   titulo.textContent = p.nome;
-  const nt = Object.entries(p.piramide), rot = { topo: 'Topo', coracao: 'Coração', fundo: 'Fundo' };
   corpo.innerHTML = `<div class="detalhe">
+    <button class="vsacola" type="button" data-vsacola>← Sua sacola</button>
     <div class="detalhe-foto"><img src="${p.imagem}" alt="Frasco do perfume ${esc(p.nome)}"></div>
-    <p class="detalhe-meta">${esc(p.familia)} · ${p.volume} ml</p>
-    <p>${esc(p.descricao)}</p>
-    <div class="pira">${nt.map(([k, v]) => `<div>${ic('sparkle')}<span><small>${rot[k]}</small><b>${esc(v)}</b></span></div>`).join('')}</div>
+    <p class="detalhe-meta">${esc(p.familia)}</p>
+    <p class="detalhe-desc">${esc(p.descricao)}</p>
     <strong class="preco">${brl(p.preco)} <small style="font-weight:400;color:var(--suave)">ou 3x de ${brl(p.preco / 3)}</small></strong>
     <button class="btn-vinho" type="button" data-add="${p.id}">Adicionar à sacola</button>
+    ${fichaHtml(p)}
   </div>`;
 }
 function freteHtml(t) {
@@ -216,13 +216,13 @@ function rSacola() {
   const faltam = P.filter(p => !S.sacola.some(i => i.id === p.id)).sort((a, b) => (b.slug === m) - (a.slug === m));
   corpo.innerHTML = freteHtml(t) + S.sacola.map(i => {
     const p = por(i.id); if (!p) return '';
-    return `<div class="linha"><button class="ver-colecao foto" type="button" data-colecao="${p.id}" aria-label="Ver ${esc(p.nome)} na coleção"><img src="${p.imagem}" alt=""></button>
-      <div><h3><button class="ver-colecao" type="button" data-colecao="${p.id}" aria-label="Ver ${esc(p.nome)} na coleção">${esc(p.nome)}</button></h3><small>${p.volume} ml · ${brl(p.preco)} por unidade</small>
+    return `<div class="linha"><button class="ir-produto foto" type="button" data-detalhe="${p.id}" aria-label="Abrir ${esc(p.nome)}"><img src="${p.imagem}" alt=""></button>
+      <div><h3><button class="ir-produto" type="button" data-detalhe="${p.id}" aria-label="Abrir ${esc(p.nome)}">${esc(p.nome)}</button></h3><small>${p.volume} ml · ${brl(p.preco)} por unidade</small>
         <div class="qtd"><button type="button" data-menos="${p.id}" aria-label="Diminuir quantidade de ${esc(p.nome)}">−</button><span aria-live="polite">${i.quantidade}</span><button type="button" data-mais="${p.id}" aria-label="Aumentar quantidade de ${esc(p.nome)}">+</button></div>
-        <button class="remover" type="button" data-remover="${p.id}">Remover</button>${fichaHtml(p)}</div>
+        <button class="remover" type="button" data-remover="${p.id}">Remover</button></div>
       <span class="subtotal">${brl(p.preco * i.quantidade)}</span></div>`;
   }).join('') +
-  (faltam.length ? `<div class="upsell"><h4>Complete sua coleção</h4>${faltam.map(p => `<div class="up-item"><img src="${p.imagem}" alt=""><div><b>${esc(p.nome)}${p.slug === m ? '<span class="tag-match">Combina com você</span>' : ''}</b><small>${esc(p.familia)} · ${brl(p.preco)}</small></div><button type="button" data-add="${p.id}">Adicionar</button></div>`).join('')}</div>` : '') +
+  (faltam.length ? `<div class="upsell"><h4>Complete sua coleção</h4>${faltam.map(p => `<div class="up-item"><button class="ir-produto foto" type="button" data-detalhe="${p.id}" aria-label="Abrir ${esc(p.nome)}"><img src="${p.imagem}" alt=""></button><div><b><button class="ir-produto" type="button" data-detalhe="${p.id}" aria-label="Abrir ${esc(p.nome)}">${esc(p.nome)}</button>${p.slug === m ? '<span class="tag-match">Combina com você</span>' : ''}</b><small>${esc(p.familia)} · ${brl(p.preco)}</small></div><button type="button" data-add="${p.id}">Adicionar</button></div>`).join('')}</div>` : '') +
   `<div style="margin-top:8px"><div class="tot"><span>Subtotal</span><span>${c2(t.sub)}</span></div>
    <div class="tot"><span>Frete</span><span>${t.frete ? c2(t.frete) : 'Grátis'}</span></div>
    <div class="tot final"><span>Total</span><strong>${c2(t.total)}</strong></div></div>
@@ -390,10 +390,7 @@ document.addEventListener('click', e => {
     adicionar(+d.add, vai);
     if (t.matches('.btn-vinho') && !t.closest('.res')) { const o = t.textContent; t.textContent = 'Adicionado ✓'; setTimeout(() => { if (t.isConnected) t.textContent = o; }, 1100); }
   }
-  else if (d.colecao) {
-    const idx = Math.max(0, P.findIndex(x => x.id === +d.colecao)); fechar();
-    setTimeout(() => { const r = jornada.getBoundingClientRect(), total = r.height - innerHeight; scrollTo({ top: scrollY + r.top + total * (idx / 3 + .05), behavior: reduz ? 'auto' : 'smooth' }); }, 160);
-  }
+  else if (d.vsacola !== undefined) { view = 'sacola'; render(); painel.focus(); }
   else if (d.detalhe) { const pp = por(+d.detalhe); if (pp) { S.perfil.views = S.perfil.views || {}; S.perfil.views[pp.slug] = (S.perfil.views[pp.slug] || 0) + 1; save(); } abrir('detalhe', +d.detalhe); }
   else if (d.mais) adicionar(+d.mais);
   else if (d.menos) { const it = S.sacola.find(i => i.id === +d.menos); if (it && --it.quantidade <= 0) S.sacola = S.sacola.filter(i => i !== it); save(); atualizaContador(); aplicarPerfil(); render(); }
@@ -518,6 +515,8 @@ fetch('/api/perfumes').then(r => r.json()).then(d => {
   P = d; S.sacola = S.sacola.filter(i => por(i.id)); save();
   renderCatalogo(); atualizaContador(); aplicarPerfil();
   $$('[data-parc]').forEach(e => { const p = por(+e.dataset.parc); if (p) e.textContent = 'ou 3x de ' + brl(p.preco / 3) + ' sem juros'; });
+  $$('[data-ficha-j]').forEach(e => { const p = por(+e.dataset.fichaJ); if (!p) return; const n = p.piramide;
+    e.innerHTML = `<p class="rot-j">Ficha técnica</p><ul class="pira-j"><li><small>Topo</small><b>${esc(n.topo)}</b></li><li><small>Coração</small><b>${esc(n.coracao)}</b></li><li><small>Fundo</small><b>${esc(n.fundo)}</b></li></ul><p class="base-j">${esc(p.concentracao || 'Eau de Parfum')} · ${p.volume} ml · Edição de 300 frascos numerados</p>`; });
   $$('[data-preco]').forEach(e => { const p = por(+e.dataset.preco); if (p) e.textContent = '· ' + brl(p.preco); });
 }).catch(() => { if ($('#grade')) $('#grade').innerHTML = '<p class="carregando">Não foi possível carregar o catálogo. Recarregue a página.</p>'; });
 })();

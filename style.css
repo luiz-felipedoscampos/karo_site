@@ -541,26 +541,48 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 .pag .erro{color:#9b2c2c;font-size:14px;margin:10px 0}
 
 /* voo do frasco até a sacola */
-.voador{position:fixed;z-index:200;object-fit:cover;border-radius:6px;pointer-events:none;box-shadow:0 10px 26px rgba(0,0,0,.35);will-change:transform,opacity}
-.btn-sacola.bate{animation:bate .5s}
-@keyframes bate{35%{transform:translateY(2px) scale(.94)}70%{transform:translateY(-1px) scale(1.04)}}
-/* sacola: foto e nome levam à coleção */
-.ver-colecao{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
-.linha h3 .ver-colecao{font-family:var(--serif);font-weight:500;font-size:inherit;line-height:inherit;transition:color .25s}
-.linha h3 .ver-colecao:hover{color:var(--vinho)}
-.linha .ver-colecao.foto{display:block;width:70px;height:70px;border-radius:6px;overflow:hidden;align-self:start}
-.linha .ver-colecao.foto img{width:100%;height:100%;transition:transform .6s}
-.linha .ver-colecao.foto:hover img{transform:scale(1.07)}
-/* ficha técnica */
-.ficha{margin-top:10px}
-.ficha summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ferrugem);padding:4px 0}
-.ficha summary::-webkit-details-marker{display:none}
-.ficha summary::after{content:"";width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .3s}
-.ficha[open] summary::after{transform:rotate(225deg) translate(-1px,-1px)}
-.ficha dl{margin:8px 0 2px;display:grid;gap:0}
-.ficha dl div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:5px 0;border-top:1px solid var(--linha)}
+.voador{position:fixed;left:0;top:0;width:64px;height:64px;border-radius:50%;z-index:200;pointer-events:none;background-size:215%;background-position:50% 58%;border:2px solid #d9b87c;box-shadow:0 0 0 5px rgba(217,184,124,.16),0 12px 30px rgba(0,0,0,.4),0 0 26px rgba(217,184,124,.55);will-change:transform,opacity}
+.rastro{position:fixed;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:#ecd3a0;box-shadow:0 0 12px #d9b87c;z-index:199;pointer-events:none;transform:scale(calc(var(--s,1)*.9));animation:rastro .7s ease-out forwards}
+@keyframes rastro{to{opacity:0;transform:scale(.1)}}
+.onda{position:fixed;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;border:1.5px solid #e2c48f;z-index:199;pointer-events:none;animation:onda .85s ease-out forwards}
+@keyframes onda{from{opacity:.95;transform:scale(.6)}to{opacity:0;transform:scale(3.4)}}
+.btn-sacola.bate{animation:bate .55s}
+@keyframes bate{30%{transform:translateY(2px) scale(.94)}65%{transform:translateY(-1px) scale(1.05)}}
+/* produtos da sacola são botões que abrem o produto */
+.ir-produto{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.linha h3 .ir-produto,.up-item b .ir-produto{font-family:var(--serif);font-weight:500;font-size:inherit;line-height:inherit;transition:color .25s}
+.linha h3 .ir-produto:hover,.up-item b .ir-produto:hover{color:var(--vinho)}
+.ir-produto.foto{display:block;border-radius:6px;overflow:hidden;align-self:start}
+.linha .ir-produto.foto{width:70px;height:70px}
+.up-item .ir-produto.foto{width:54px;height:54px}
+.ir-produto.foto img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+.ir-produto.foto:hover img{transform:scale(1.07)}
+.up-item b{display:block}
+/* detalhe do produto dentro do painel */
+.vsacola{background:none;border:0;padding:0;margin:0 0 14px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ferrugem);cursor:pointer}
+.vsacola:hover{color:var(--vinho)}
+.detalhe-desc{font-size:15.5px;line-height:1.65;margin:0 0 6px}
+.ficha{margin:16px 0 20px}
+.ficha h4{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--ferrugem);font-weight:600;margin:0 0 6px}
+.ficha dl{margin:0}
+.ficha dl div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:7px 0;border-top:1px solid var(--linha)}
 .ficha dt{font-size:12px;color:var(--suave);letter-spacing:.04em}
-.ficha dd{margin:0;font-family:var(--serif);font-size:17px;color:var(--tinta);text-align:right}
-.ficha[open] dl{animation:fichaIn .45s ease}
-@keyframes fichaIn{from{opacity:0;transform:translateY(-4px)}}
-@media (prefers-reduced-motion:reduce){.btn-sacola.bate,.ficha[open] dl{animation:none}}
+.ficha dd{margin:0;font-family:var(--serif);font-size:18px;color:var(--tinta);text-align:right}
+/* ficha técnica nos capítulos da coleção */
+.ficha-j{margin:26px 0 28px;max-width:540px}
+.rot-j{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--acento);margin:0 0 -12px;opacity:.9}
+.ficha-j .pira-j{margin:20px 0 14px}
+.base-j{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(246,232,214,.6);margin:0}
+@media (max-width:900px){.ficha-j{margin:14px 0 18px}.ficha-j .pira-j{margin:16px 0 10px}.ficha-j .pira-j b{font-size:16px}.base-j{font-size:9.5px;letter-spacing:.14em}}
+@media (prefers-reduced-motion:reduce){.btn-sacola.bate{animation:none}}
+
+.cap .rot-j{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--acento);margin:0 0 -12px;line-height:1.4}
+.cap .base-j{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(246,232,214,.6);margin:0;line-height:1.6;max-width:none}
+@media (max-width:900px){.cap .base-j{font-size:9.5px;letter-spacing:.12em}}
+.detalhe-foto{height:300px}
+.detalhe-foto img{width:100%;height:100%;object-fit:cover;object-position:50% 56%}
+.detalhe .btn-vinho{width:100%}
+.detalhe .ficha{margin-top:26px}
+.cap .ficha-j .base-j{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(246,232,214,.6);max-width:none;line-height:1.7}
+.cap .ficha-j .rot-j{font-size:10.5px;color:var(--acento);max-width:none}
+@media (max-width:900px){.cap .ficha-j .base-j{font-size:9.5px;letter-spacing:.12em}}
