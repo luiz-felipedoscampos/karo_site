@@ -539,3 +539,28 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 .pag-nota{font-size:13px;color:var(--suave);margin:14px 0}
 .pag select{width:100%;font:inherit;font-size:16px;padding:13px 14px;border:1px solid #9b7f7b;background:#fff;color:var(--tinta);border-radius:10px}
 .pag .erro{color:#9b2c2c;font-size:14px;margin:10px 0}
+
+/* voo do frasco até a sacola */
+.voador{position:fixed;z-index:200;object-fit:cover;border-radius:6px;pointer-events:none;box-shadow:0 10px 26px rgba(0,0,0,.35);will-change:transform,opacity}
+.btn-sacola.bate{animation:bate .5s}
+@keyframes bate{35%{transform:translateY(2px) scale(.94)}70%{transform:translateY(-1px) scale(1.04)}}
+/* sacola: foto e nome levam à coleção */
+.ver-colecao{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.linha h3 .ver-colecao{font-family:var(--serif);font-weight:500;font-size:inherit;line-height:inherit;transition:color .25s}
+.linha h3 .ver-colecao:hover{color:var(--vinho)}
+.linha .ver-colecao.foto{display:block;width:70px;height:70px;border-radius:6px;overflow:hidden;align-self:start}
+.linha .ver-colecao.foto img{width:100%;height:100%;transition:transform .6s}
+.linha .ver-colecao.foto:hover img{transform:scale(1.07)}
+/* ficha técnica */
+.ficha{margin-top:10px}
+.ficha summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ferrugem);padding:4px 0}
+.ficha summary::-webkit-details-marker{display:none}
+.ficha summary::after{content:"";width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .3s}
+.ficha[open] summary::after{transform:rotate(225deg) translate(-1px,-1px)}
+.ficha dl{margin:8px 0 2px;display:grid;gap:0}
+.ficha dl div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:5px 0;border-top:1px solid var(--linha)}
+.ficha dt{font-size:12px;color:var(--suave);letter-spacing:.04em}
+.ficha dd{margin:0;font-family:var(--serif);font-size:17px;color:var(--tinta);text-align:right}
+.ficha[open] dl{animation:fichaIn .45s ease}
+@keyframes fichaIn{from{opacity:0;transform:translateY(-4px)}}
+@media (prefers-reduced-motion:reduce){.btn-sacola.bate,.ficha[open] dl{animation:none}}

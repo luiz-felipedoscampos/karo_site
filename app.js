@@ -99,11 +99,39 @@ function atualizaContador(anima) {
   c.textContent = n; c.setAttribute('aria-label', `${n} ${n === 1 ? 'unidade' : 'unidades'} na sacola`);
   if (anima) { c.classList.remove('pulo'); void c.offsetWidth; c.classList.add('pulo'); }
 }
-function adicionar(id) {
+function adicionar(id, adiar) {
   const it = S.sacola.find(i => i.id === id);
   if (it) it.quantidade = Math.min(99, it.quantidade + 1); else S.sacola.push({ id, quantidade: 1 });
-  save(); atualizaContador(true); aplicarPerfil(); if (view === 'sacola') render();
+  save(); if (!adiar) atualizaContador(true); aplicarPerfil(); if (view === 'sacola') render();
 }
+/* o frasco sai do botão, desenha um arco suave e pousa na sacola do topo */
+function voar(origem, p) {
+  const alvo = $('.btn-sacola');
+  if (reduz || !alvo || view) return false;
+  const a = origem.getBoundingClientRect(), b = $('#contador').getBoundingClientRect();
+  const w = 46, h = 68, x0 = a.left + a.width / 2 - w / 2, y0 = a.top + a.height / 2 - h / 2, x1 = b.left + b.width / 2 - w / 2, y1 = b.top + b.height / 2 - h / 2;
+  const f = document.createElement('img'); f.src = p.imagem; f.alt = ''; f.className = 'voador'; f.style.cssText = `width:${w}px;height:${h}px;left:0;top:0`;
+  document.body.appendChild(f);
+  const xm = x0 + (x1 - x0) * .5, ym = Math.min(y0, y1) - 70;
+  const an = f.animate([
+    { transform: `translate(${x0}px,${y0}px) scale(.7)`, opacity: 0, offset: 0 },
+    { transform: `translate(${x0}px,${y0 - 16}px) scale(1)`, opacity: 1, offset: .14, easing: 'cubic-bezier(.3,0,.4,1)' },
+    { transform: `translate(${xm}px,${ym}px) scale(.8) rotate(-6deg)`, opacity: 1, offset: .55, easing: 'cubic-bezier(.5,0,.8,.6)' },
+    { transform: `translate(${x1}px,${y1}px) scale(.2) rotate(4deg)`, opacity: .35, offset: 1 }
+  ], { duration: 900, fill: 'forwards' });
+  an.onfinish = () => { f.remove(); alvo.classList.remove('bate'); void alvo.offsetWidth; alvo.classList.add('bate'); atualizaContador(true); };
+  an.oncancel = () => { f.remove(); atualizaContador(true); };
+  return true;
+}
+/* ficha técnica discreta, aberta ou fechada conforme o cliente deixou */
+const fichasAbertas = new Set();
+function fichaHtml(p) {
+  const n = p.piramide, l = (k, v) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`;
+  return `<details class="ficha" data-ficha="${p.id}"${fichasAbertas.has(p.id) ? ' open' : ''}><summary>Ficha técnica</summary><dl>`
+    + l('Família olfativa', p.familia) + l('Concentração', p.concentracao || 'Eau de Parfum')
+    + l('Topo', n.topo) + l('Coração', n.coracao) + l('Fundo', n.fundo) + l('Edição', '300 frascos numerados') + `</dl></details>`;
+}
+document.addEventListener('toggle', e => { const d = e.target; if (d.matches?.('.ficha')) { const id = +d.dataset.ficha; d.open ? fichasAbertas.add(id) : fichasAbertas.delete(id); } }, true);
 function atualizaBag() { if (view === 'sacola' || view === 'checkout') render(); }
 
 /* ---------------- catálogo ---------------- */
@@ -188,10 +216,10 @@ function rSacola() {
   const faltam = P.filter(p => !S.sacola.some(i => i.id === p.id)).sort((a, b) => (b.slug === m) - (a.slug === m));
   corpo.innerHTML = freteHtml(t) + S.sacola.map(i => {
     const p = por(i.id); if (!p) return '';
-    return `<div class="linha"><img src="${p.imagem}" alt="">
-      <div><h3>${esc(p.nome)}</h3><small>${p.volume} ml · ${brl(p.preco)} por unidade</small>
+    return `<div class="linha"><button class="ver-colecao foto" type="button" data-colecao="${p.id}" aria-label="Ver ${esc(p.nome)} na coleção"><img src="${p.imagem}" alt=""></button>
+      <div><h3><button class="ver-colecao" type="button" data-colecao="${p.id}" aria-label="Ver ${esc(p.nome)} na coleção">${esc(p.nome)}</button></h3><small>${p.volume} ml · ${brl(p.preco)} por unidade</small>
         <div class="qtd"><button type="button" data-menos="${p.id}" aria-label="Diminuir quantidade de ${esc(p.nome)}">−</button><span aria-live="polite">${i.quantidade}</span><button type="button" data-mais="${p.id}" aria-label="Aumentar quantidade de ${esc(p.nome)}">+</button></div>
-        <button class="remover" type="button" data-remover="${p.id}">Remover</button></div>
+        <button class="remover" type="button" data-remover="${p.id}">Remover</button>${fichaHtml(p)}</div>
       <span class="subtotal">${brl(p.preco * i.quantidade)}</span></div>`;
   }).join('') +
   (faltam.length ? `<div class="upsell"><h4>Complete sua coleção</h4>${faltam.map(p => `<div class="up-item"><img src="${p.imagem}" alt=""><div><b>${esc(p.nome)}${p.slug === m ? '<span class="tag-match">Combina com você</span>' : ''}</b><small>${esc(p.familia)} · ${brl(p.preco)}</small></div><button type="button" data-add="${p.id}">Adicionar</button></div>`).join('')}</div>` : '') +
@@ -358,8 +386,13 @@ async function enviar(e) {
 document.addEventListener('click', e => {
   const t = e.target.closest('button, a'); if (!t) return; const d = t.dataset;
   if (d.add) {
-    adicionar(+d.add);
+    const pr = por(+d.add), vai = pr && !t.closest('#painel') ? voar(t, pr) : false;
+    adicionar(+d.add, vai);
     if (t.matches('.btn-vinho') && !t.closest('.res')) { const o = t.textContent; t.textContent = 'Adicionado ✓'; setTimeout(() => { if (t.isConnected) t.textContent = o; }, 1100); }
+  }
+  else if (d.colecao) {
+    const idx = Math.max(0, P.findIndex(x => x.id === +d.colecao)); fechar();
+    setTimeout(() => { const r = jornada.getBoundingClientRect(), total = r.height - innerHeight; scrollTo({ top: scrollY + r.top + total * (idx / 3 + .05), behavior: reduz ? 'auto' : 'smooth' }); }, 160);
   }
   else if (d.detalhe) { const pp = por(+d.detalhe); if (pp) { S.perfil.views = S.perfil.views || {}; S.perfil.views[pp.slug] = (S.perfil.views[pp.slug] || 0) + 1; save(); } abrir('detalhe', +d.detalhe); }
   else if (d.mais) adicionar(+d.mais);
