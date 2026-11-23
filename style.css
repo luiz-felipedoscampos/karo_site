@@ -517,3 +517,10 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 .casa-foto img{width:100%;height:100%;object-fit:cover;object-position:50% 62%;display:block;filter:saturate(.92)}
 @media(max-width:860px){.casa-grade{grid-template-columns:1fr;gap:40px;padding:72px 22px}.casa-foto{justify-self:stretch;width:100%;aspect-ratio:4/3}.casa-foto img{object-position:50% 58%}}
 .casa>.casa-grade{max-width:1240px;width:100%}
+
+/* A casa KARO sem foto: texto centralizado */
+.casa{text-align:center}
+.casa>.casa-grade{display:block;max-width:720px;padding:96px 24px 104px}
+.casa-texto{max-width:none;margin:0 auto}
+.casa-texto p:not(.eyebrow){max-width:620px;margin-left:auto;margin-right:auto}
+@media(max-width:860px){.casa>.casa-grade{padding:72px 22px}}
