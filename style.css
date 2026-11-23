@@ -445,3 +445,6 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 @media (max-width:900px){.parc-j{margin-top:10px;font-size:12px}}
 .cap .parc-j{font-size:12.5px;letter-spacing:.04em;color:rgba(246,232,214,.7);max-width:none;margin:14px 0 0}
 @media (max-width:900px){.textos-j{bottom:78px}.cap .parc-j{font-size:12px;margin-top:10px}}
+
+.cap .desc{font-size:18px;max-width:430px;margin-bottom:30px}
+@media (max-width:900px){.cap .desc{display:block;font-size:14.5px;margin:12px 0 20px}.cap h2{margin-bottom:0}.textos-j{bottom:70px}}
