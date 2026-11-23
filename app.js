@@ -161,7 +161,7 @@ function fechar() {
   setTimeout(() => { if (!view) { painel.hidden = true; veu.hidden = true; } }, 350);
   document.body.style.overflow = ''; ultimoFoco?.focus?.();
 }
-function render() { ({ detalhe: rDetalhe, sacola: rSacola, checkout: rCheckout, ok: rOk })[view]?.(); }
+function render() { ({ detalhe: rDetalhe, sacola: rSacola, checkout: rCheckout, pagamento: rPagamento, ok: rOk })[view]?.(); }
 
 function rDetalhe() {
   const p = por(ctx); if (!p) return fechar();
@@ -255,11 +255,75 @@ function ligaCep() {
     } catch { msg.textContent = 'Não foi possível buscar o CEP. Preencha o endereço manualmente.'; msg.className = 'cep-msg err'; }
   }
 }
-function rOk() {
-  titulo.textContent = 'Pedido confirmado';
+function rPagamento() {
+  const o = ctx; titulo.textContent = 'Pagamento';
+  const parc = [1, 2, 3].map(n => `<option value="${n}">${n}x de ${brl(o.total / n)} sem juros</option>`).join('');
+  corpo.innerHTML = `<div class="pag">
+    <div class="resumo"><div><span>Pedido</span><strong>#${o.numero}</strong></div><div><span>Total a pagar</span><strong>${brl(o.total)}</strong></div></div>
+    <div class="pag-abas" role="tablist" aria-label="Forma de pagamento">
+      <button type="button" role="tab" class="on" data-pag="pix" aria-selected="true">Pix</button>
+      <button type="button" role="tab" data-pag="cartao" aria-selected="false">Cartão de crédito</button>
+    </div>
+    <div id="pag-pix" class="pag-painel">
+      <div class="pix-qr" id="pix-qr" aria-live="polite">Gerando o Pix…</div>
+      <label class="l" for="pix-codigo">Pix copia e cola</label>
+      <textarea id="pix-codigo" readonly rows="3"></textarea>
+      <button class="btn-contorno" type="button" data-copiar>Copiar código</button>
+      <p class="pag-nota">Abra o app do seu banco, escolha pagar com Pix e leia o QR code ou cole o código. Esta é uma loja de demonstração: use o botão abaixo para simular a confirmação do pagamento.</p>
+      <p class="erro" id="pix-erro" role="alert" hidden></p>
+      <button class="btn-vinho" type="button" data-simpix>Simular pagamento aprovado</button>
+    </div>
+    <form id="pag-cartao" class="pag-painel" novalidate hidden>
+      <label class="l" for="c-num">Número do cartão</label>
+      <input id="c-num" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="0000 0000 0000 0000">
+      <label class="l" for="c-nome">Nome impresso no cartão</label>
+      <input id="c-nome" autocomplete="cc-name" maxlength="40">
+      <div class="duas"><div><label class="l" for="c-val">Validade</label><input id="c-val" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/AA"></div>
+        <div><label class="l" for="c-cvv">CVV</label><input id="c-cvv" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="000"></div></div>
+      <label class="l" for="c-parc">Parcelas</label>
+      <select id="c-parc">${parc}</select>
+      <p class="erro" id="c-erro" role="alert" hidden></p>
+      <p class="pag-nota">Pagamento de demonstração: use o cartão de teste 4111 1111 1111 1111 com qualquer validade futura e CVV. O número do cartão não é enviado nem guardado; só os 4 últimos dígitos entram no pedido.</p>
+      <button class="btn-vinho" type="submit" id="pagar-cartao">Pagar ${brl(o.total)}</button>
+    </form>
+  </div>`;
+  gerarPix();
+}
+async function gerarPix() {
+  const o = ctx, box = $('#pix-qr'); if (!box) return;
+  try {
+    const r = await fetch('/api/pagamento', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ numero: o.numero, email: o.email, acao: 'pix' }) });
+    const d = await r.json(); if (!r.ok) throw 0;
+    if (view !== 'pagamento' || !$('#pix-qr')) return;
+    box.innerHTML = d.qrSvg; box.setAttribute('role', 'img'); box.setAttribute('aria-label', 'QR code do Pix'); $('#pix-codigo').value = d.payload;
+  } catch { if ($('#pix-qr')) box.textContent = 'Não foi possível gerar o Pix agora. Tente o cartão ou volte a abrir a sacola.'; }
+}
+async function pagar(metodo, extra = {}) {
   const o = ctx;
+  const r = await fetch('/api/pagamento', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ numero: o.numero, email: o.email, acao: 'pagar', metodo, ...extra }) });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.erro || 'Não foi possível concluir o pagamento. Tente novamente.');
+  S.pendente = null; save(); view = 'ok'; ctx = d; render(); painel.scrollTop = 0;
+  const r2 = painel.getBoundingClientRect(); confete(r2.left + r2.width / 2, 260);
+}
+const luhn = n => { let s = 0, d = false; for (let i = n.length - 1; i >= 0; i--) { let x = +n[i]; if (d && (x *= 2) > 9) x -= 9; s += x; d = !d; } return n.length >= 13 && s % 10 === 0; };
+async function enviarCartao(e) {
+  e.preventDefault();
+  const num = $('#c-num').value.replace(/\D/g, ''), nome = $('#c-nome').value.trim(), val = $('#c-val').value, cvv = $('#c-cvv').value, erro = $('#c-erro');
+  const m = /^(\d{2})\/(\d{2})$/.exec(val), agora = new Date();
+  const validade = m && +m[1] >= 1 && +m[1] <= 12 && (2000 + +m[2] > agora.getFullYear() || (2000 + +m[2] === agora.getFullYear() && +m[1] >= agora.getMonth() + 1));
+  const msg = !luhn(num) ? 'Confira o número do cartão.' : nome.length < 3 ? 'Informe o nome impresso no cartão.' : !validade ? 'Confira a validade (MM/AA).' : !/^\d{3,4}$/.test(cvv) ? 'Confira o CVV.' : '';
+  if (msg) { erro.textContent = msg; erro.hidden = false; return; }
+  erro.hidden = true; const btn = $('#pagar-cartao'), txt = btn.textContent; btn.disabled = true; btn.textContent = 'Processando…';
+  try { await pagar('cartao', { parcelas: +$('#c-parc').value, final4: num.slice(-4) }); }
+  catch (ex) { erro.textContent = ex.message; erro.hidden = false; btn.disabled = false; btn.textContent = txt; }
+}
+function rOk() {
+  titulo.textContent = 'Pagamento aprovado';
+  const o = ctx, pg = o.pagamento || {};
+  const forma = pg.metodo === 'cartao' ? `Cartão final ${esc(pg.final4)}, ${pg.parcelas}x de ${brl(o.total / pg.parcelas)} sem juros` : 'Pix';
   corpo.innerHTML = `<div class="confirmacao"><p>Obrigada por escolher a KARO, ${esc(o.cliente)}.</p>
-    <div class="resumo"><div><span>Pedido</span><strong>#${o.numero}</strong></div><div><span>Total</span><strong>${brl(o.total)}</strong></div></div>
+    <div class="resumo"><div><span>Pedido</span><strong>#${o.numero}</strong></div><div><span>Total</span><strong>${brl(o.total)}</strong></div><div><span>Pagamento</span><strong>${forma}</strong></div></div>
     <p style="margin:16px 0 4px"><b>Seus frascos numerados</b></p>
     <ul class="frasco-lista">${o.frascos.map(f => `<li><span>${esc(f.perfume)}</span><span>nº ${f.numero}</span></li>`).join('')}</ul>
     ${o.endereco ? `<p>Entrega em <b>${esc(o.endereco.rua)}, ${esc(o.endereco.numero)}${o.endereco.complemento ? ' – ' + esc(o.endereco.complemento) : ''}</b>${o.endereco.bairro ? ', ' + esc(o.endereco.bairro) : ''} · ${esc(o.endereco.cidade)}/${esc(o.endereco.uf)}</p>` : ''}
@@ -286,8 +350,7 @@ async function enviar(e) {
     const d = await r.json().catch(() => ({}));
     if (!r.ok) return rCheckout(d.erro || 'Não foi possível gravar o pedido. Tente novamente.', v);
     S.sacola = []; S.perfil.gravacao = gravacao; if (!S.perfil.nome) S.perfil.nome = nome.split(' ')[0]; save(); atualizaContador(); aplicarPerfil();
-    view = 'ok'; ctx = d; render(); painel.scrollTop = 0;
-    const r2 = painel.getBoundingClientRect(); confete(r2.left + r2.width / 2, 260);
+    S.pendente = d; save(); view = 'pagamento'; ctx = d; render(); painel.scrollTop = 0;
   } catch { rCheckout('Falha de conexão. Seus itens foram mantidos; tente novamente.', v); }
 }
 
@@ -305,8 +368,19 @@ document.addEventListener('click', e => {
   else if (d.finalizar !== undefined) { view = 'checkout'; render(); }
   else if (d.voltar !== undefined) { view = 'sacola'; render(); painel.focus(); }
   else if (d.continuar !== undefined) fechar();
-  else if (t.id === 'abrir-sacola') abrir('sacola');
+  else if (d.pag) {
+    $$('.pag-abas button').forEach(b => { const on = b === t; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+    $('#pag-pix').hidden = d.pag !== 'pix'; $('#pag-cartao').hidden = d.pag !== 'cartao';
+  }
+  else if (d.copiar !== undefined) { const c = $('#pix-codigo'); if (c.value) { c.select(); (navigator.clipboard?.writeText(c.value) || Promise.reject()).catch(() => document.execCommand('copy')); t.textContent = 'Código copiado ✓'; setTimeout(() => { if (t.isConnected) t.textContent = 'Copiar código'; }, 1600); } }
+  else if (d.simpix !== undefined) { t.disabled = true; t.textContent = 'Confirmando…'; pagar('pix').catch(ex => { t.disabled = false; t.textContent = 'Simular pagamento aprovado'; const e2 = $('#pix-erro'); e2.textContent = ex.message; e2.hidden = false; }); }
+  else if (t.id === 'abrir-sacola') { if (S.pendente && !S.sacola.length) abrir('pagamento', S.pendente); else abrir('sacola'); }
   else if (t.id === 'fechar') fechar();
+});
+document.addEventListener('submit', e => { if (e.target.id === 'pag-cartao') enviarCartao(e); });
+document.addEventListener('input', e => {
+  if (e.target.id === 'c-num') { const d = e.target.value.replace(/\D/g, '').slice(0, 16); e.target.value = d.replace(/(.{4})/g, '$1 ').trim(); }
+  if (e.target.id === 'c-val') { const d = e.target.value.replace(/\D/g, '').slice(0, 4); e.target.value = d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d; }
 });
 document.addEventListener('change', e => {
 });

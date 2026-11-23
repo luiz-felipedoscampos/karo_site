@@ -527,3 +527,15 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 
 .rodape{justify-content:center;padding:30px 24px}
 @media(max-width:900px){.rodape{align-items:center}}
+
+/* pagamento */
+.pag-abas{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--linha);border-radius:12px;overflow:hidden;margin:18px 0 6px}
+.pag-abas button{background:transparent;border:0;padding:13px 10px;font-weight:600;font-size:15px;color:var(--suave);cursor:pointer}
+.pag-abas button.on{background:var(--vinho);color:#fff}
+.pix-qr{width:min(100%,240px);aspect-ratio:1;margin:18px auto 6px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:14px;color:var(--suave);background:#fff;border:1px solid var(--linha);border-radius:12px;padding:8px}
+.pix-qr svg{width:100%;height:100%;display:block}
+#pix-codigo{width:100%;font:inherit;font-size:13px;padding:10px 12px;border:1px solid #9b7f7b;border-radius:10px;background:#fff;color:var(--tinta);resize:none;word-break:break-all}
+.pag-painel .btn-contorno{margin-top:10px}
+.pag-nota{font-size:13px;color:var(--suave);margin:14px 0}
+.pag select{width:100%;font:inherit;font-size:16px;padding:13px 14px;border:1px solid #9b7f7b;background:#fff;color:var(--tinta);border-radius:10px}
+.pag .erro{color:#9b2c2c;font-size:14px;margin:10px 0}

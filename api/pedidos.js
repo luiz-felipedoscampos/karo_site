@@ -101,7 +101,7 @@ module.exports = async (req, res) => {
     cliente: nome, email, itens: linhas, endereco,
     subtotal: subCent / 100, desconto: descCent / 100, frete: freteCent / 100, total: totalCent / 100,
     cupom: cupom || null, gravacao, presente, mensagem, amostra: amostra ? amostra.nome : null, frascos,
-    criadoEm: new Date().toISOString()
+    status: 'aguardando_pagamento', criadoEm: new Date().toISOString()
   };
 
   let numero = Math.floor(Date.now() / 1000) % 100000, salvo = false;
@@ -109,5 +109,6 @@ module.exports = async (req, res) => {
     try { numero = await gravar(pedido); salvo = true; }
     catch { return res.status(503).json({ erro: 'Não foi possível gravar o pedido agora. Tente novamente em instantes.' }); }
   }
+  if (!salvo) { global.__pedidos = global.__pedidos || new Map(); global.__pedidos.set(String(numero), { ...pedido, numero }); }
   res.status(201).json({ numero, ...pedido, salvo });
 };
