@@ -505,17 +505,15 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 .duas{display:grid;grid-template-columns:1fr 1.4fr;gap:12px}.duas.cid{grid-template-columns:1fr 84px}
 .cep-msg{min-height:0;margin:6px 0 0;font-size:13px;color:var(--suave)}.cep-msg:empty{display:none}.cep-msg.err{color:#9b2c2c}
 
-/* ===== A casa KARO: composicao mais rica e calma ===== */
-.casa{position:relative;overflow:hidden;padding:96px 48px 104px;background:radial-gradient(60% 55% at 50% 38%,rgba(120,40,52,.22),transparent 70%),var(--noite)}
-.casa-kanji{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);font-family:"Cormorant Garamond",serif;font-size:min(62vw,620px);line-height:1;color:rgba(214,182,128,.04);pointer-events:none;user-select:none}
-.casa>*:not(.casa-kanji){position:relative}
-.casa .casa-topo{max-width:760px;margin:0 auto}
-.casa .casa-txt{font-size:17px;line-height:1.75;color:rgba(243,230,211,.82);max-width:620px;margin:0 auto}
-.pilares{list-style:none;margin:72px auto 0;padding:0;max-width:1040px;display:grid;grid-template-columns:repeat(3,1fr);gap:0}
-.pilares li{padding:30px 34px 4px;text-align:left;border-top:1px solid rgba(214,182,128,.28);position:relative}
-.pilares li+li{border-left:1px solid rgba(214,182,128,.12)}
-.pilares li::before{content:"";position:absolute;top:-1px;left:34px;width:36px;height:1px;background:#e4c996}
-.pilares .n{display:block;font-family:"Cormorant Garamond",serif;font-size:15px;letter-spacing:.2em;color:#d6b680;margin-bottom:14px}
-.pilares h3{margin:0 0 8px;font-family:"Cormorant Garamond",serif;font-weight:500;font-size:27px;line-height:1.15;color:#fdebd6}
-.pilares p{margin:0;font-size:15px;line-height:1.65;color:rgba(243,230,211,.66)}
-@media(max-width:800px){.casa{padding:76px 22px 72px}.pilares{grid-template-columns:1fr;margin-top:48px}.pilares li{padding:24px 6px 22px}.pilares li+li{border-left:0}.pilares li::before{left:6px}.pilares h3{font-size:24px}}
+/* ===== A casa KARO: texto a esquerda, foto a direita ===== */
+.casa{padding:0;text-align:left;background:var(--noite)}
+.casa::before,.casa .eyebrow::before{content:none;display:none}
+.casa-grade{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:72px;padding:104px 48px}
+.casa-texto{max-width:520px}
+.casa .eyebrow{margin-bottom:22px}
+.casa h2{font-size:clamp(38px,4.4vw,60px);margin:0 0 28px}
+.casa-texto p:not(.eyebrow){font-size:17px;line-height:1.8;color:rgba(243,230,211,.8);margin:0 0 18px}
+.casa-foto{margin:0;justify-self:end;width:min(100%,430px);aspect-ratio:4/5;overflow:hidden}
+.casa-foto img{width:100%;height:100%;object-fit:cover;object-position:50% 62%;display:block;filter:saturate(.92)}
+@media(max-width:860px){.casa-grade{grid-template-columns:1fr;gap:40px;padding:72px 22px}.casa-foto{justify-self:stretch;width:100%;aspect-ratio:4/3}.casa-foto img{object-position:50% 58%}}
+.casa>.casa-grade{max-width:1240px;width:100%}
