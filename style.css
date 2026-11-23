@@ -478,30 +478,25 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 .casa{padding-bottom:88px}
 @media(max-width:700px){.selos{grid-template-columns:1fr 1fr;padding:22px;gap:16px}}
 
-/* ===== botoes dourados refinados: moldura interna, brilho e seta ===== */
+/* ===== botoes: minimalistas, sem brilho nem degrade ===== */
 .hero .btn-ouro,.hero-fim .btn-ouro,.cta-j .btn-ouro{
-  position:relative;isolation:isolate;overflow:hidden;display:inline-flex;align-items:center;gap:18px;
-  border:1px solid #e9cf9c;border-radius:0;padding:20px 38px;
-  font-size:11.5px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:#2a1209;
-  background:linear-gradient(180deg,#f6e3b9 0%,#dcb87b 55%,#c9a063 100%);
-  box-shadow:0 14px 34px -14px rgba(224,184,120,.55),inset 0 1px 0 rgba(255,255,255,.55);
-  transition:transform .5s cubic-bezier(.2,.7,.2,1),box-shadow .5s,letter-spacing .5s}
+  position:relative;isolation:isolate;overflow:hidden;display:inline-flex;align-items:center;gap:20px;
+  border:1px solid rgba(243,230,211,.55);border-radius:0;padding:19px 34px;background:transparent;box-shadow:none;
+  font-size:11px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:#f3e6d3;
+  transition:color .5s cubic-bezier(.2,.7,.2,1),border-color .5s}
 .hero .btn-ouro::before,.hero-fim .btn-ouro::before,.cta-j .btn-ouro::before{
-  content:"";position:absolute;inset:4px;border:1px solid rgba(70,36,14,.32);pointer-events:none;z-index:1;transition:inset .5s cubic-bezier(.2,.7,.2,1),border-color .5s}
-.hero .btn-ouro::after,.hero-fim .btn-ouro::after,.cta-j .btn-ouro::after{
-  content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;z-index:0;pointer-events:none;
-  background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);transition:left .9s cubic-bezier(.2,.7,.2,1)}
-.hero .btn-ouro:hover,.hero-fim .btn-ouro:hover,.cta-j .btn-ouro:hover{
-  transform:translateY(-2px);background:linear-gradient(180deg,#f9e9c6 0%,#e2c088 55%,#cfa66a 100%);
-  box-shadow:0 20px 40px -14px rgba(224,184,120,.7),inset 0 1px 0 rgba(255,255,255,.6)}
-.hero .btn-ouro:hover::before,.hero-fim .btn-ouro:hover::before,.cta-j .btn-ouro:hover::before{inset:6px;border-color:rgba(70,36,14,.5)}
-.hero .btn-ouro:hover::after,.hero-fim .btn-ouro:hover::after,.cta-j .btn-ouro:hover::after{left:130%}
-.btn-ouro:active{transform:translateY(0)!important}
-.btn-ouro b{font-weight:inherit;position:relative;z-index:2}
-.btn-ouro .seta{position:relative;z-index:2;display:block;width:30px;height:1px;background:currentColor;transition:width .5s cubic-bezier(.2,.7,.2,1)}
+  content:"";position:absolute;inset:0;z-index:-1;background:#f3e6d3;transform:translateY(101%);transition:transform .55s cubic-bezier(.2,.7,.2,1)}
+.hero .btn-ouro::after,.hero-fim .btn-ouro::after,.cta-j .btn-ouro::after{content:none}
+.hero .btn-ouro:hover,.hero-fim .btn-ouro:hover,.cta-j .btn-ouro:hover{transform:none;background:transparent;box-shadow:none;color:#2a1209;border-color:#f3e6d3}
+.hero .btn-ouro:hover::before,.hero-fim .btn-ouro:hover::before,.cta-j .btn-ouro:hover::before{transform:none}
+.btn-ouro b{font-weight:inherit}
+.btn-ouro .seta{display:block;width:26px;height:1px;background:currentColor;position:relative;transition:width .5s cubic-bezier(.2,.7,.2,1)}
 .btn-ouro .seta::after{content:"";position:absolute;right:0;top:-3px;width:6px;height:6px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
-.btn-ouro:hover .seta{width:42px}
-.cta-j .btn-ouro{padding:19px 34px;gap:14px}
-.cta-j .btn-ouro span{position:relative;z-index:2;opacity:.8;font-weight:500;letter-spacing:.1em;padding-left:14px;border-left:1px solid rgba(70,36,14,.3)}
-.btn-ouro:focus-visible{outline:2px solid #fff;outline-offset:4px}
-@media(max-width:900px){.hero .btn-ouro,.hero-fim .btn-ouro{padding:18px 28px;gap:14px;letter-spacing:.24em}.cta-j .btn-ouro{padding:17px 24px;letter-spacing:.2em}.btn-ouro .seta{width:22px}}
+.btn-ouro:hover .seta{width:38px}
+/* compra: preenchido e liso, destaque discreto */
+.cta-j .btn-ouro{background:#f3e6d3;color:#2a1209;border-color:#f3e6d3;padding:18px 32px;gap:16px}
+.cta-j .btn-ouro::before{background:#d9b87c}
+.cta-j .btn-ouro:hover{background:#f3e6d3;border-color:#d9b87c;color:#2a1209}
+.cta-j .btn-ouro span{opacity:.7;font-weight:500;letter-spacing:.12em;padding-left:16px;border-left:1px solid rgba(42,18,9,.25)}
+.btn-ouro:focus-visible{outline:1px solid #fff;outline-offset:4px}
+@media(max-width:900px){.hero .btn-ouro,.hero-fim .btn-ouro{padding:17px 26px;gap:16px;letter-spacing:.24em}.cta-j .btn-ouro{padding:16px 22px;letter-spacing:.2em}.btn-ouro .seta{width:20px}}
