@@ -236,7 +236,7 @@ function amostraEscolhida() {
 function rCheckout(erro = '', v = {}) {
   titulo.textContent = 'Finalizar pedido';
   const t = calc(), am = amostraEscolhida();
-  const nomeV = v.nome ?? '', emailV = v.email ?? '', grV = v.gravacao ?? S.perfil.gravacao ?? '';
+  const nomeV = v.nome ?? '', emailV = v.email ?? '';
   corpo.innerHTML = `<p>Pedido demonstrativo. Use nome e e-mail fictícios. Nenhum pagamento será cobrado.</p>
     <div class="resumo">${S.sacola.map(i => { const p = por(i.id); return `<div><span>${i.quantidade} × ${esc(p.nome)}</span><span>${brl(p.preco * i.quantidade)}</span></div>`; }).join('')}
       ${am ? `<div><span>1 × Amostra 2 ml ${esc(porSlug(am).nome)}</span><span class="verde">Cortesia</span></div>` : ''}
@@ -248,8 +248,6 @@ function rCheckout(erro = '', v = {}) {
       <input id="nome" name="nome" autocomplete="name" required value="${esc(nomeV)}" ${erro.includes('nome') ? 'aria-invalid="true"' : ''}>
       <label class="l" for="email">E-mail</label>
       <input id="email" name="email" type="email" autocomplete="email" required value="${esc(emailV)}" ${erro.toLowerCase().includes('e-mail') ? 'aria-invalid="true"' : ''}>
-      <label class="l" for="grav">Gravação no frasco (cortesia, opcional)</label>
-      <input id="grav" name="grav" maxlength="14" autocomplete="off" placeholder="Ex.: Ana" value="${esc(grV)}">
       <label class="opc"><input type="checkbox" id="pres" ${v.presente ? 'checked' : ''}> ${ic('gift')} É um presente (caixa, laço e cartão)</label>
       <div id="pres-box" ${v.presente ? '' : 'hidden'}><label class="l" for="msg">Mensagem do cartão</label><textarea id="msg" maxlength="120" placeholder="Escreva algo carinhoso…">${esc(v.mensagem || '')}</textarea></div>
       ${erro ? `<p class="erro" role="alert">${esc(erro)}</p>` : ''}
@@ -274,7 +272,7 @@ function rOk() {
 
 async function enviar(e) {
   e.preventDefault();
-  const nome = $('#nome').value.trim(), email = $('#email').value.trim(), gravacao = $('#grav').value.trim();
+  const nome = $('#nome').value.trim(), email = $('#email').value.trim(), gravacao = '';
   const presente = $('#pres').checked, mensagem = presente ? $('#msg').value.trim() : '';
   const v = { nome, email, gravacao, presente, mensagem };
   if (nome.length < 3 || !nome.includes(' ')) return rCheckout('Informe o nome completo.', v);
