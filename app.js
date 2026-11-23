@@ -292,27 +292,6 @@ async function enviar(e) {
   } catch { rCheckout('Falha de conexão. Seus itens foram mantidos; tente novamente.', v); }
 }
 
-/* ---------------- exclusividade: gravação e hanko ---------------- */
-let grScent = 'sakura';
-function renderEx() {
-  $('#gr-chips').innerHTML = P.map(p => `<button type="button" class="chip" data-gs="${p.slug}" aria-pressed="${p.slug === grScent}">${ic(p.slug)} ${esc(p.nome)}</button>`).join('');
-  const p = porSlug(grScent), n = $('#gr-nome').value.trim();
-  $('#gr-foto').src = p.imagem; $('#gr-foto').alt = 'Frasco ' + p.nome;
-  $('#gr-texto').textContent = n || 'Seu nome';
-  $('#hanko-t').textContent = n ? n[0].toUpperCase() : 'K';
-  let h = 0; for (const ch of n + grScent) h = (h * 31 + ch.charCodeAt(0)) % 300; $('#gr-num').textContent = String(h + 1).padStart(4, '0');
-}
-$('#gr-nome').addEventListener('input', () => { renderEx(); const h = $('#hanko'); h.classList.remove('carimba'); void h.offsetWidth; h.classList.add('carimba'); });
-$('#gr-chips').addEventListener('click', e => { const b = e.target.closest('[data-gs]'); if (b) { grScent = b.dataset.gs; renderEx(); } });
-$('#gr-levar').addEventListener('click', () => {
-  const n = $('#gr-nome').value.trim(), p = porSlug(grScent);
-  if (!n) { $('#gr-nome').setAttribute('aria-invalid', 'true'); $('#gr-nome').focus(); return; }
-  $('#gr-nome').removeAttribute('aria-invalid');
-  if (!/^[\p{L}\p{N} .'-]+$/u.test(n)) { toast('Use apenas letras e números na gravação.', 'seal'); return; }
-  S.perfil.gravacao = n; if (!S.perfil.nome) { S.perfil.nome = n.split(' ')[0]; } save(); adicionar(p.id); aplicarPerfil();
-  toast(`${esc(p.nome)} com “${esc(n)}” na sacola.`, 'gift');
-});
-
 /* ---------------- eventos globais ---------------- */
 document.addEventListener('click', e => {
   const t = e.target.closest('button, a'); if (!t) return; const d = t.dataset;
@@ -437,10 +416,9 @@ addEventListener('resize', layoutCena);
 
 /* ---------------- início ---------------- */
 layoutCena(); atualizaContador(); renderMimos(); aoRolar();
-if (S.perfil.gravacao) $('#gr-nome').value = S.perfil.gravacao;
 fetch('/api/perfumes').then(r => r.json()).then(d => {
   P = d; S.sacola = S.sacola.filter(i => por(i.id)); save();
-  renderCatalogo(); renderEx(); atualizaContador(); aplicarPerfil(); renderMimos();
+  renderCatalogo(); atualizaContador(); aplicarPerfil(); renderMimos();
   $$('[data-preco]').forEach(e => { const p = por(+e.dataset.preco); if (p) e.textContent = '· ' + brl(p.preco); });
 }).catch(() => { $('#grade').innerHTML = '<p class="carregando">Não foi possível carregar o catálogo. Recarregue a página.</p>'; });
 })();
