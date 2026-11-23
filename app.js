@@ -33,7 +33,6 @@ function afinidade(slug) {
   const p = porSlug(slug); if (!p) return 0;
   let a = (S.perfil.views?.[slug] || 0);
   if (S.perfil.quiz?.slug === slug) a += 6;
-  if (S.perfil.favs.includes(slug)) a += 3;
   if (S.sacola.some(i => i.id === p.id)) a += 2;
   return a;
 }
@@ -59,7 +58,7 @@ function renderMimos() {
   $('#mimos-n').textContent = n + '/2';
   $('#mimos-box').innerHTML = `
     <p class="mini" style="margin-bottom:6px">Mimos para você</p>
-    <div class="mimo ${S.mimos.amostra ? 'ok' : ''}">${ic(S.mimos.amostra ? 'seal' : 'heart')}<div><b>Amostra de 2 ml</b><small>${S.mimos.amostra ? 'Liberada. Entra de cortesia no seu pedido.' : 'Favorite uma fragrância (coração).'}</small></div></div>
+    <div class="mimo ${S.mimos.amostra ? 'ok' : ''}">${ic(S.mimos.amostra ? 'seal' : 'heart')}<div><b>Amostra de 2 ml</b><small>${S.mimos.amostra ? 'Liberada. Entra de cortesia no seu pedido.' : 'Adicione um perfume à sacola.'}</small></div></div>
     <div class="mimo ${S.mimos.assinatura ? 'ok' : ''}">${ic(S.mimos.assinatura ? 'seal' : 'sparkle')}<div><b>10% na primeira compra</b><small>${S.mimos.assinatura ? 'Liberado. Aplicado na sacola (KARO10).' : 'Adicione um perfume à sacola.'}</small></div></div>`;
 }
 $('#mimos-btn').addEventListener('click', () => {
@@ -124,7 +123,8 @@ function adicionar(id) {
   const it = S.sacola.find(i => i.id === id);
   if (it) it.quantidade = Math.min(99, it.quantidade + 1); else S.sacola.push({ id, quantidade: 1 });
   save(); atualizaContador(true); aplicarPerfil(); if (view === 'sacola') render();
-  desbloquear('assinatura', 'Mimo liberado: 10% na primeira compra.');
+  desbloquear('assinatura', 'Mimos liberados: 10% na primeira compra e uma amostra de 2 ml.');
+  if (!S.mimos.amostra) { S.mimos.amostra = true; save(); renderMimos(); }
 }
 function atualizaBag() { if (view === 'sacola' || view === 'checkout') render(); }
 
@@ -135,7 +135,6 @@ function renderCatalogo() {
     <article class="cartao" data-slug="${p.slug}">
       <div class="cartao-in">
         <span class="selo-card">${ic(p.slug)}<span class="rot">${esc(p.familia.split(' ')[0])}</span></span>
-        <button class="fav" type="button" data-fav="${p.slug}" aria-pressed="${S.perfil.favs.includes(p.slug)}" aria-label="Favoritar ${esc(p.nome)}">${ic('heart')}</button>
         <button class="cartao-foto" type="button" data-detalhe="${p.id}" aria-label="Ver detalhes de ${esc(p.nome)}">
           <img src="${p.imagem}" alt="Frasco do perfume ${esc(p.nome)}" loading="lazy">
           <span class="sobre-notas">${esc(p.notas)}</span>
@@ -297,7 +296,7 @@ function rOk() {
     <div class="resumo"><div><span>Pedido</span><strong>#${o.numero}</strong></div><div><span>Total</span><strong>${brl(o.total)}</strong></div></div>
     <p style="margin:16px 0 4px"><b>Seus frascos numerados</b></p>
     <ul class="frasco-lista">${o.frascos.map(f => `<li><span>${esc(f.perfume)}</span><span>nº ${f.numero}</span></li>`).join('')}</ul>
-    ${o.endereco ? `<p>Entrega em <b>${esc(o.endereco.rua)}, ${esc(o.endereco.numero)}${o.endereco.complemento ? ' – ' + esc(o.endereco.complemento) : ''}</b>, ${esc(o.endereco.bairro)} · ${esc(o.endereco.cidade)}/${esc(o.endereco.uf)}</p>` : ''}
+    ${o.endereco ? `<p>Entrega em <b>${esc(o.endereco.rua)}, ${esc(o.endereco.numero)}${o.endereco.complemento ? ' – ' + esc(o.endereco.complemento) : ''}</b>${o.endereco.bairro ? ', ' + esc(o.endereco.bairro) : ''} · ${esc(o.endereco.cidade)}/${esc(o.endereco.uf)}</p>` : ''}
     ${o.gravacao ? `<p>${ic('sparkle')} Gravação: <b>${esc(o.gravacao)}</b></p>` : ''}
     ${o.amostra ? `<p>${ic('seal')} Amostra de cortesia: <b>${esc(o.amostra)}</b></p>` : ''}
     ${o.presente ? `<p>${ic('gift')} Presente com cartão${o.mensagem ? ': “' + esc(o.mensagem) + '”' : ''}</p>` : ''}
@@ -335,11 +334,6 @@ document.addEventListener('click', e => {
   if (d.add) {
     adicionar(+d.add);
     if (t.matches('.btn-vinho') && !t.closest('.res')) { const o = t.textContent; t.textContent = 'Adicionado ✓'; setTimeout(() => { if (t.isConnected) t.textContent = o; }, 1100); }
-  }
-  else if (d.fav) {
-    const s = d.fav, i = S.perfil.favs.indexOf(s); if (i >= 0) S.perfil.favs.splice(i, 1); else S.perfil.favs.push(s);
-    save(); t.setAttribute('aria-pressed', i < 0); t.classList.remove('bate'); void t.offsetWidth; t.classList.add('bate'); aplicarPerfil();
-    if (i < 0) { toast(`${esc(porSlug(s).nome)} salvo nos seus favoritos.`, 'heart'); desbloquear('amostra', 'Mimo liberado: amostra de 2 ml de cortesia no seu pedido.'); }
   }
   else if (d.detalhe) { const pp = por(+d.detalhe); if (pp) { S.perfil.views = S.perfil.views || {}; S.perfil.views[pp.slug] = (S.perfil.views[pp.slug] || 0) + 1; save(); } abrir('detalhe', +d.detalhe); }
   else if (d.mais) adicionar(+d.mais);
@@ -457,7 +451,6 @@ fetch('/api/perfumes').then(r => r.json()).then(d => {
   P = d; S.sacola = S.sacola.filter(i => por(i.id)); save();
   renderCatalogo(); atualizaContador(); aplicarPerfil(); renderMimos();
   $$('[data-parc]').forEach(e => { const p = por(+e.dataset.parc); if (p) e.textContent = 'ou 3x de ' + brl(p.preco / 3) + ' sem juros'; });
-  $$('.cta-j [data-fav]').forEach(b => b.setAttribute('aria-pressed', S.perfil.favs.includes(b.dataset.fav)));
   $$('[data-preco]').forEach(e => { const p = por(+e.dataset.preco); if (p) e.textContent = '· ' + brl(p.preco); });
 }).catch(() => { if ($('#grade')) $('#grade').innerHTML = '<p class="carregando">Não foi possível carregar o catálogo. Recarregue a página.</p>'; });
 })();
