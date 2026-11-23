@@ -460,3 +460,13 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 .jornada::before{background:linear-gradient(180deg,var(--noite),transparent)}
 .jornada::after{background:linear-gradient(180deg,transparent,#0c0407)}
 .casa{padding-top:88px}
+
+/* faixa de diferenciais no meio, tom escuro para nao quebrar a leitura */
+.selos{position:relative;z-index:2;background:var(--noite);border:0;border-top:1px solid rgba(214,182,128,.22);border-bottom:1px solid rgba(214,182,128,.22);max-width:1180px;margin:0 auto;padding:30px 24px}
+.selos li{color:#d6b680}
+.selos b{color:#f3e6d3;font-weight:500}
+.selos span{color:rgba(243,230,211,.62)}
+.casa{padding-bottom:56px}
+@media(max-width:700px){.selos{padding:24px 18px}}
+.selos{max-width:none;margin:0;padding:30px max(24px,calc((100% - 1180px)/2));background:linear-gradient(180deg,var(--noite),#0c0407)}
+@media(max-width:700px){.selos{padding:24px 18px}}
