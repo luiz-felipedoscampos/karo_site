@@ -470,3 +470,10 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 @media(max-width:700px){.selos{padding:24px 18px}}
 .selos{max-width:none;margin:0;padding:30px max(24px,calc((100% - 1180px)/2));background:linear-gradient(180deg,var(--noite),#0c0407)}
 @media(max-width:700px){.selos{padding:24px 18px}}
+/* faixa de diferenciais: versao clara, igual a original */
+.selos{max-width:none;margin:0;padding:26px max(48px,calc((100% - 1500px)/2));background:var(--creme2);border:0;border-bottom:1px solid var(--linha)}
+.selos li{color:var(--vinho)}
+.selos b{color:var(--tinta);font-weight:600}
+.selos span{color:var(--suave)}
+.casa{padding-bottom:88px}
+@media(max-width:700px){.selos{grid-template-columns:1fr 1fr;padding:22px;gap:16px}}
