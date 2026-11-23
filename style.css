@@ -455,3 +455,8 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 
 .rolar{display:block}
 .casa .eyebrow::before{content:"";display:block;width:1px;height:64px;margin:0 auto 26px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.9))}
+
+.hero-wrap::after{background:linear-gradient(180deg,transparent,var(--noite))}
+.jornada::before{background:linear-gradient(180deg,var(--noite),transparent)}
+.jornada::after{background:linear-gradient(180deg,transparent,#0c0407)}
+.casa{padding-top:88px}
