@@ -524,3 +524,6 @@ textarea{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #9
 .casa-texto{max-width:none;margin:0 auto}
 .casa-texto p:not(.eyebrow){max-width:620px;margin-left:auto;margin-right:auto}
 @media(max-width:860px){.casa>.casa-grade{padding:72px 22px}}
+
+.rodape{justify-content:center;padding:30px 24px}
+@media(max-width:900px){.rodape{align-items:center}}
