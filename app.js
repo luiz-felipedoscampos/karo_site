@@ -515,8 +515,6 @@ fetch('/api/perfumes').then(r => r.json()).then(d => {
   P = d; S.sacola = S.sacola.filter(i => por(i.id)); save();
   renderCatalogo(); atualizaContador(); aplicarPerfil();
   $$('[data-parc]').forEach(e => { const p = por(+e.dataset.parc); if (p) e.textContent = 'ou 3x de ' + brl(p.preco / 3) + ' sem juros'; });
-  $$('[data-ficha-j]').forEach(e => { const p = por(+e.dataset.fichaJ); if (!p) return; const n = p.piramide;
-    e.innerHTML = `<p class="rot-j">Ficha técnica</p><ul class="pira-j"><li><small>Topo</small><b>${esc(n.topo)}</b></li><li><small>Coração</small><b>${esc(n.coracao)}</b></li><li><small>Fundo</small><b>${esc(n.fundo)}</b></li></ul><p class="base-j">${esc(p.concentracao || 'Eau de Parfum')} · ${p.volume} ml · Edição de 300 frascos numerados</p>`; });
   $$('[data-preco]').forEach(e => { const p = por(+e.dataset.preco); if (p) e.textContent = '· ' + brl(p.preco); });
 }).catch(() => { if ($('#grade')) $('#grade').innerHTML = '<p class="carregando">Não foi possível carregar o catálogo. Recarregue a página.</p>'; });
 })();
