@@ -226,8 +226,6 @@ function rCheckout(erro = '', v = {}) {
       <input id="bairro" name="bairro" value="${esc(en.bairro || '')}">
       <div class="duas cid"><div><label class="l" for="cidade">Cidade</label><input id="cidade" name="cidade" autocomplete="address-level2" value="${esc(en.cidade || '')}"></div>
         <div><label class="l" for="uf">UF</label><input id="uf" name="uf" maxlength="2" autocomplete="address-level1" value="${esc(en.uf || '')}"></div></div>
-      <label class="opc"><input type="checkbox" id="pres" ${v.presente ? 'checked' : ''}> ${ic('gift')} É um presente (caixa, laço e cartão)</label>
-      <div id="pres-box" ${v.presente ? '' : 'hidden'}><label class="l" for="msg">Mensagem do cartão</label><textarea id="msg" maxlength="120" placeholder="Escreva algo carinhoso…">${esc(v.mensagem || '')}</textarea></div>
       ${erro ? `<p class="erro" role="alert">${esc(erro)}</p>` : ''}
       <div class="form-botoes"><button class="btn-vinho" type="submit" id="confirmar">Confirmar pedido</button><button class="btn-contorno" type="button" data-voltar>Voltar à sacola</button></div>
     </form>`;
@@ -266,7 +264,6 @@ function rOk() {
     <ul class="frasco-lista">${o.frascos.map(f => `<li><span>${esc(f.perfume)}</span><span>nº ${f.numero}</span></li>`).join('')}</ul>
     ${o.endereco ? `<p>Entrega em <b>${esc(o.endereco.rua)}, ${esc(o.endereco.numero)}${o.endereco.complemento ? ' – ' + esc(o.endereco.complemento) : ''}</b>${o.endereco.bairro ? ', ' + esc(o.endereco.bairro) : ''} · ${esc(o.endereco.cidade)}/${esc(o.endereco.uf)}</p>` : ''}
     ${o.gravacao ? `<p>${ic('sparkle')} Gravação: <b>${esc(o.gravacao)}</b></p>` : ''}
-    ${o.presente ? `<p>${ic('gift')} Presente com cartão${o.mensagem ? ': “' + esc(o.mensagem) + '”' : ''}</p>` : ''}
     <p>Esta compra foi uma simulação.</p>
     <button class="btn-vinho" type="button" data-continuar>Voltar à loja</button></div>`;
 }
@@ -274,10 +271,9 @@ function rOk() {
 async function enviar(e) {
   e.preventDefault();
   const nome = $('#nome').value.trim(), email = $('#email').value.trim(), gravacao = '';
-  const presente = $('#pres').checked, mensagem = presente ? $('#msg').value.trim() : '';
   const endereco = { cep: $('#cep').value.trim(), rua: $('#rua').value.trim(), numero: $('#numero').value.trim(), complemento: $('#comp').value.trim(),
     bairro: $('#bairro').value.trim(), cidade: $('#cidade').value.trim(), uf: $('#uf').value.trim().toUpperCase() };
-  const v = { nome, email, gravacao, presente, mensagem, endereco };
+  const v = { nome, email, gravacao, endereco };
   if (nome.length < 3 || !nome.includes(' ')) return rCheckout('Informe o nome completo.', v);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return rCheckout('Informe um e-mail válido.', v);
   if (endereco.cep.replace(/\D/g, '').length !== 8 || endereco.rua.length < 3 || !endereco.numero || endereco.cidade.length < 2 || !/^[A-Z]{2}$/.test(endereco.uf)) return rCheckout('Confira o endereço de entrega (CEP, rua, número, cidade e UF).', v);
@@ -285,7 +281,7 @@ async function enviar(e) {
   const t = calc();
   try {
     const r = await fetch('/api/pedidos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-      nome, email, endereco, gravacao, presente, mensagem,
+      nome, email, endereco, gravacao,
       itens: S.sacola.map(i => ({ id: i.id, quantidade: i.quantidade })) }) });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) return rCheckout(d.erro || 'Não foi possível gravar o pedido. Tente novamente.', v);
@@ -313,7 +309,6 @@ document.addEventListener('click', e => {
   else if (t.id === 'fechar') fechar();
 });
 document.addEventListener('change', e => {
-  if (e.target.id === 'pres') $('#pres-box').hidden = !e.target.checked;
 });
 document.addEventListener('submit', e => { if (e.target.id === 'form') enviar(e); });
 veu.addEventListener('click', fechar);
